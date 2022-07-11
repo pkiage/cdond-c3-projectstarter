@@ -256,15 +256,12 @@ jobs:
           command: |
             # Your code here
             cd backend
-            echo "npm install"
+            echo "-------------------npm install-------------------"
             npm install
-            echo "npm audit fix"
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
             # Run and save the migration output
-            echo "npm run build"
+            echo "-------------------npm run build-------------------"
             npm run build
-            echo "npm run migrations"
+            echo "-------------------npm run migrations-------------------"
             npm run migrations >> migrations_dump.txt
       - run:
           name: Send migration status to kvdb.io
