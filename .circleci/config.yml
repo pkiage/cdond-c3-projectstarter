@@ -243,11 +243,11 @@ jobs:
       # Checkout code from git
       - checkout
       - run:
-        name: Install pip
-        command: sudo apt-get install python-pip python-dev
+          name: Install pip
+          command: sudo apt-get install python-pip python-dev
       - run:
-        name: Install awscli
-        command: sudo pip install awscli
+          name: Install awscli
+          command: sudo pip install awscli
       - run:
           name: Run migrations
           command: |
