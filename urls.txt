@@ -6,3 +6,5 @@ https://github.com/pkiage/cdond-c3-projectstarter
 Evidence of deployed and functioning front-end application in an S3 bucket [URL02].
 
 http://udapeople-cbbf5d6.s3-website-us-west-2.amazonaws.com
+
+https://web.archive.org/web/20220711141054/http://udapeople-cbbf5d6.s3-website-us-west-2.amazonaws.com/#/employees
