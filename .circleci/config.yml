@@ -286,6 +286,10 @@ jobs:
       - image: python:3.10-alpine3.16
     steps:
       # Checkout code from git
+      - checkout
+      # Attach workspace
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
