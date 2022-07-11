@@ -36,4 +36,6 @@ Resources:
       ImageId: ami-0ddf424f81ddb0720
       Tags:
         - Key: Name
+          # Value used in aws ec2 describe-instances
+          # ID = CIRCLE_WORKFLOW_ID:0:7
           Value: !Sub backend-${ID}
