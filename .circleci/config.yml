@@ -344,6 +344,7 @@ jobs:
             apk add --update --no-cache aws-cli
             apk add --update --no-cache git
             apk add --update --no-cache openssh-client
+            apk add --update --no-cache rsync #to move files
       - run:
           name: Deploy backend
           command: |
@@ -352,30 +353,17 @@ jobs:
             npm install
             npm run build
 
-            printf "=%.0s"  $(seq 1 70)
-            pwd
-            ls -hlR
-            printf "=%.0s"  $(seq 1 70)
-
             cd ..
 
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
 
             # handle artifact location
-            printf "=%.0s"  $(seq 1 70)
-            pwd
-            printf "=%.0s"  $(seq 1 70)
-
             mkdir .circleci/ansible/roles/deploy/files/
             mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
 
-            printf "=%.0s"  $(seq 1 70)
-            ls -hlR
-            printf "=%.0s"  $(seq 1 70)
-
             cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
+            echo "Contents  of the inventory.txt file is ------- \n"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
@@ -404,21 +392,44 @@ jobs:
             apk add --update --no-cache npm
             apk add --update --no-cache aws-cli 
             pip install awscli
+            apk add --update --no-cache openssh-client
+            apk add --update --no-cache rsync #to move files
+
       - run:
           name: Backend smoke test.
           command: |
             # your code here
+
             # Get backend url
-            echo "-------Backend URL-------"
+
+            printf "=%.0s"  $(seq 1 70)
+            echo -e "\n"
+
             export BACKEND_IP=$(aws ec2 describe-instances \
             --filter "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query "Reservations[*].Instances[*].[PublicIpAddress]" \
             --output text)
-            echo "${BACKEND_IP}"
+
+            echo "BACKEND_IP: ${BACKEND_IP}"
+
+            echo -e "\n"
+            printf "=%.0s"  $(seq 1 70)
+
+
             # Fetch and prepare the BACKEND_IP env var
-            echo "-------Fetch and prepare the BACKEND_IP env var-------"
+
+            printf "=%.0s"  $(seq 1 70)
+            echo -e "\n"
+
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+
+            echo "API_URL: ${API_URL}"
+
+            echo -e "\n"
+            printf "=%.0s"  $(seq 1 70)
+
+            sudo pm2 logs
+
             # No errors mean a successful test
             if curl "${API_URL}/api/status" | grep "ok"
             then
@@ -443,8 +454,8 @@ jobs:
                 return 1
             fi
       # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
 #   cloudfront-update:
 #     docker:
