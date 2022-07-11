@@ -1,0 +1,34 @@
+---
+# In the "deploy" role, you can extract the zipped artifact into the EC2 instance, and then start the app.
+# CC6-L4-C5-Design an Ansible Playbook
+- name: "upgrade packages."
+  become: true
+  apt:
+    upgrade: "yes"
+- name: "remove unnecessary dependencies."
+  become: yes
+  apt:
+    autoremove: yes
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+- name: "install pm2."
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+- name: "extract the zipped artifact into the EC2 instance."
+  become: yes
+  unarchive:
+    src: files/artifact.tar.gz
+    dest: .
+- name: "start the app."
+  become: yes
+  shell: |
+    pm2 stop default
+    pm2 start npm -- start
