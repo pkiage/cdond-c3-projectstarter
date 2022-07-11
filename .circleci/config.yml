@@ -360,9 +360,6 @@ jobs:
       # attach workspace
       - attach_workspace:
           at: ~/
-      # Restore from cache
-      - restore_cache:
-          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
@@ -391,9 +388,6 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
