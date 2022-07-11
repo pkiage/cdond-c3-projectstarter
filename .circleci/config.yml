@@ -238,16 +238,19 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      - image: cimg/node:13.8.0
+      - image: python:3.10-alpine3.16
     steps:
       # Checkout code from git
       - checkout
       - run:
-          name: Install pip
-          command: sudo apt-get install python-pip python-dev
-      - run:
-          name: Install awscli
-          command: sudo pip install awscli
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache tar
+            apk add --update --no-cache gzi 
+            apk add --update --no-cache nodejs
+            apk add --update --no-cache npm
+            apk add --update --no-cache aws-cli
+            apk add --update --no-cache curl
       - run:
           name: Run migrations
           command: |
