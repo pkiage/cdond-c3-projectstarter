@@ -6,7 +6,7 @@
   apt:
     upgrade: "yes"
 - name: "remove unnecessary dependencies."
-  become: yes
+  become: true
   apt:
     autoremove: yes
 - name: "install dependencies."
@@ -22,13 +22,28 @@
     global: yes
     production: yes
     state: present
-- name: "extract the zipped artifact into the EC2 instance."
-  become: yes
+- name: "create backend directory."
+  become: true
+  file:
+    path: ~/backend
+    state: directory
+    # octal notation
+    # 7=rwx 5=r-x 5=r-x
+    # -rwxr-xr-x
+    # everyone read & execute
+    # owner write
+    mode: 0755
+- name: "make copy of artifact"
+  copy:
+    src: "~/artifact.tar.gz"
+    dest: "~/artifact.tar.gz"
+- name: "extract the zipped artifact into the EC2 instance in created backend directory."
+  become: true
   unarchive:
-    src: files/artifact.tar.gz
-    dest: .
+    src: ~/artifact.tar.gz
+    dest: ~/backend
 - name: "start the app."
-  become: yes
+  become: true
   shell: |
     pm2 stop default
     pm2 start npm -- start
