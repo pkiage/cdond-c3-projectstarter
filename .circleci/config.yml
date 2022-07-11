@@ -343,8 +343,8 @@ jobs:
             apk add --update --no-cache npm
             apk add --update --no-cache aws-cli
             apk add --update --no-cache git
-            apk add --update --no-cache openssh-client
-            apk add --update --no-cache rsync #to move files
+            apk add --update --no-cache openssh # auth
+            apk add --update --no-cache rsync #to move file
       - run:
           name: Deploy backend
           command: |
@@ -359,8 +359,8 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
 
             # handle artifact location
-            mkdir .circleci/ansible/roles/deploy/files/
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
+            # mkdir .circleci/ansible/roles/deploy/files/
+            # cp artifact.tar.gz .circleci/ansible/roles/deploy/files/
 
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is ------- \n"
@@ -402,7 +402,7 @@ jobs:
 
             # Get backend url
 
-            printf "=%.0s"  $(seq 1 70)
+            printf "=%.0s"  $(seq 1 10)
             echo -e "\n"
 
             export BACKEND_IP=$(aws ec2 describe-instances \
@@ -413,12 +413,12 @@ jobs:
             echo "BACKEND_IP: ${BACKEND_IP}"
 
             echo -e "\n"
-            printf "=%.0s"  $(seq 1 70)
+            printf "=%.0s"  $(seq 1 10)
 
 
             # Fetch and prepare the BACKEND_IP env var
 
-            printf "=%.0s"  $(seq 1 70)
+            printf "=%.0s"  $(seq 1 10)
             echo -e "\n"
 
             export API_URL="http://${BACKEND_IP}:3030"
@@ -426,9 +426,7 @@ jobs:
             echo "API_URL: ${API_URL}"
 
             echo -e "\n"
-            printf "=%.0s"  $(seq 1 70)
-
-            sudo pm2 logs
+            printf "=%.0s"  $(seq 1 10)
 
             # No errors mean a successful test
             if curl "${API_URL}/api/status" | grep "ok"
