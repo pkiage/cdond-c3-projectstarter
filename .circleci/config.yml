@@ -246,7 +246,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update --no-cache tar
-            apk add --update --no-cache gzi 
+            apk add --update --no-cache gzip 
             apk add --update --no-cache nodejs
             apk add --update --no-cache npm
             apk add --update --no-cache aws-cli
