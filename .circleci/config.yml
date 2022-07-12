@@ -361,6 +361,7 @@ jobs:
             apk add --update --no-cache npm
             apk add --update --no-cache aws-cli
             apk add --update --no-cache git
+            apk add --update --no-cache tree
             apk add --update --no-cache openssh # auth
             apk add --update --no-cache rsync #to move file
       - run:
@@ -371,14 +372,16 @@ jobs:
             npm install
             npm run build
 
+            tree -aCf
+
             cd ..
 
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
 
             # handle artifact location
-            mkdir .circleci/ansible/roles/deploy/files/
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
+            # mkdir .circleci/ansible/roles/deploy/files/
+            # mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
 
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is ------- \n"
