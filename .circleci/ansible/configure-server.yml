@@ -23,6 +23,7 @@
         state: latest
         update_cache: yes
 
+  # B2. Configure Infrastructure (1.b)
   # Get the environment variables from CircleCI and add to the EC2 instance
   environment:
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
@@ -35,5 +36,16 @@
     - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
     - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
 
+  # B2. Configure Infrastructure (1.b)
+  # Keep your playbook clean and maintainable by using roles.
+  # You will need to decide what roles to create and how to split up your code.
+
+  # In one of the roles
+  ## Install Python (already done in pre_tasks here)
+  ## Update/upgrade packages
+  ## Install nodejs, npm, and pm2
+
+  # Tips:
+  ## Read project/.circleci/ansible/roles/configure-server/tasks/readme.md
   roles:
     - configure-server
