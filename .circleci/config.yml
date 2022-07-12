@@ -2,6 +2,7 @@
 
 # Docker Image Selection Options
 ## NodeJS: https://hub.docker.com/_/node
+## AWS: https://hub.docker.com/r/amazon/aws-cli
 
 # Slack Notifications
 ## https://github.com/CircleCI-Public/slack-orb/wiki/Setup
@@ -14,6 +15,7 @@
 
 # Setup - CloudFront Distribution Primer
 ## project/.circleci/files/cloudfront.yml
+## project/setup-cfd-primer.sh
 
 # Setup -CircleCI
 ## https://circleci.com/docs/add-ssh-key
@@ -30,7 +32,7 @@ orbs:
 
 # COMMANDS
 commands:
-  # Custom failure alert messages
+  # Custom alert messages
   custom-failure-alert-message:
     description: Custom failure alert messages to the UdaPeople dev team
     parameters:
@@ -39,6 +41,8 @@ commands:
     steps:
       - slack/notify:
           event: fail # options: always, pass, fail
+          # Tip:
+          ## For template JSON formatting do it in a JSON file e.g. project/circleci-stack-customFailAlert.json
           custom: |
             {
               "blocks": [
@@ -97,7 +101,6 @@ commands:
   destroy-environment:
     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here
       workflow_id:
         type: string
     steps:
@@ -114,13 +117,11 @@ commands:
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here
       workflow_id:
         type: string
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
@@ -147,7 +148,6 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
-      # Job
       - run:
           name: Build frontend (check for syntax errors and unintentional typos)
           command: |
@@ -161,7 +161,7 @@ jobs:
       - custom-failure-alert-message:
           custom_message: "Please fix frontend code syntax errors or unintentional typos"
       # Success notification
-      - slack-success-notification
+      # - slack-success-notification
 
   build-backend:
     docker:
@@ -171,8 +171,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      # Job
-      - run:
+          # Job
           name: Build backend (check for syntax errors and unintentional typos)
           command: |
             # Your code here
@@ -195,12 +194,9 @@ jobs:
       # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
       - checkout
-      # Restore from cache
       - restore_cache:
           keys: [frontend-build]
-      # Job
       - run:
           name: Run frontend test
           command: |
@@ -218,12 +214,9 @@ jobs:
       # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
       - checkout
-      # Restore from cache
       - restore_cache:
           keys: [backend-build]
-      # Job
       - run:
           name: Run backend test
           command: |
@@ -243,12 +236,9 @@ jobs:
       # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
       - checkout
-      # Restore from cache
       - restore_cache:
           keys: [frontend-build]
-      # Your job code here
       - run:
           name: Run frontend scan
           command: |
@@ -267,12 +257,9 @@ jobs:
       # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
       - checkout
-      # Restore from cache
       - restore_cache:
           keys: [backend-build]
-      # Your job code here
       - run:
           name: Run backend scan
           command: |
@@ -288,6 +275,8 @@ jobs:
       # - slack-success-notification
 
   # B Infrastructure Phase
+  # B1. Create Infrastructure (1.a)
+  # Create infrastructure using provided CloudFormation Templates in dir project/.circleci/files
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
@@ -299,6 +288,22 @@ jobs:
           name: Install tar and gzip
           command: |
             yum install -y tar gzip
+            exit 1
+
+      # Create a stack udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+      # Using project/.circleci/files/backend.yml
+
+      # Default project/.circleci/files/backend.yml
+      ## SecurityGroup (allow port 22 and port 3030)
+      ## EC2 instance and attach the SecurityGroup
+
+      # AWS Console Check
+      ## EC2 Instance has port 3030 opened up to public traffic
+
+      # Tips:
+      ## Read project/backend/README.md
+      ## For backend environment variables create and use project/backend/.env
+
       - run:
           name: Ensure backend infrastructure exists
           command: |
@@ -308,6 +313,20 @@ jobs:
                 --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
                 --tags project=udapeople
+            exit 1
+
+      # Create a stack udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+      # Using project/.circleci/files/frontend.yml
+
+      # Default project/.circleci/files/frontend.yml
+      ## Create a new S3 bucket
+      ## Create a Bucket policy and attach to the S3 bucket
+
+      # Tips:
+      ## Read project/backend/README.md
+      ## When deploying to a folder instead of the root on a web server,
+      ## you need paths to resources to be relative (ex: ./scripts instead of /scripts).
+
       - run:
           name: Ensure frontend infrastructure exist
           command: |
@@ -316,6 +335,13 @@ jobs:
                 --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
                 --tags project=udapeople
+            exit 1
+
+      # Fetch public IP of EC2 instance specified in project/.circleci/files/backend.yml
+      # Append public IP to .circleci/ansible/inventory.txt
+
+      # Persist .circleci/ansible/inventory.txt since used in future jobs e.g.
+      ##
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
@@ -324,6 +350,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/ansible/inventory.txt
+            exit 1
       - persist_to_workspace:
           root: ~/
           paths:
@@ -334,6 +361,12 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # Custom failure reason message
+      - custom-failure-alert-message:
+          custom_message:
+            "Please ensure i) appropriate stack name with workflow id,
+            ii) correct CircleCi workflow id referencing,
+            iii) correct values in project/.circleci/files/backend.yml (AMI ID, KeyPair name) applicable to AWS account/region"
 
   configure-infrastructure:
     docker:
