@@ -710,6 +710,7 @@ workflows:
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # Make sure you only run deployment-related jobs on commits to the master branch
+          # SCREENSHOT10
           filters:
             branches:
               only: [master]
