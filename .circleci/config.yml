@@ -383,7 +383,9 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is ------- \n"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            # To see the full traceback, use -vvv
+            # Verbose
+            ansible-playbook -i inventory.txt deploy-backend.yml -vvv
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
