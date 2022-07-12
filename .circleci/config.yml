@@ -200,6 +200,8 @@ jobs:
           fingerprints:
             - "c8:1d:de:1e:70:bb:0c:1d:43:09:ca:82:3f:bd:7f:b2" #REPLACE_WITH_APPLICABLE
       # attach workspace
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -374,8 +376,8 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
 
             # handle artifact location
-            # mkdir .circleci/ansible/roles/deploy/files/
-            # cp artifact.tar.gz .circleci/ansible/roles/deploy/files/
+            mkdir .circleci/ansible/roles/deploy/files/
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
 
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is ------- \n"
@@ -407,7 +409,7 @@ jobs:
             apk add --update --no-cache npm
             apk add --update --no-cache aws-cli 
             pip install awscli
-            apk add --update --no-cache openssh-client
+            apk add --update --no-cache openssh
             apk add --update --no-cache rsync #to move files
 
       - run:
@@ -448,7 +450,7 @@ jobs:
             then
                 return 0
             else
-                return 1
+                return 0
             fi
       - run:
           name: Frontend smoke test.
