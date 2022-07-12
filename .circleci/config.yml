@@ -206,10 +206,9 @@ jobs:
       - run:
           name: Run frontend test
           command: |
-            # cd frontend
-            # npm install
-            # npm run test
-            exit 1
+            cd frontend
+            npm install
+            npm run test
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: "Please fix failing frontend code unit tests"
@@ -230,10 +229,9 @@ jobs:
       - run:
           name: Run backend test
           command: |
-            # cd backend
-            # npm install
-            # npm run test
-            exit 1
+            cd backend
+            npm install
+            npm run test
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: "Please fix failing backend code unit tests"
@@ -256,11 +254,10 @@ jobs:
       - run:
           name: Run frontend scan
           command: |
-            # cd frontend
-            # npm install
-            # npm audit fix --force
-            # npm audit --audit-level=critical
-            exit 1
+            cd frontend
+            npm install
+            npm audit fix --force
+            npm audit --audit-level=critical
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: "Please address frontend packages security vulnerabilities"
@@ -281,12 +278,11 @@ jobs:
       - run:
           name: Run backend scan
           command: |
-            # cd backend
-            # npm install
-            # npm audit fix --audit-level=critical --force
-            # npm audit fix --force
-            # npm audit --audit-level=critical
-            exit 1
+            cd backend
+            npm install
+            npm audit fix --audit-level=critical --force
+            npm audit fix --force
+            npm audit --audit-level=critical
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: "Please address backend packages security vulnerabilities"
