@@ -468,7 +468,7 @@ jobs:
             then
                 return 0
             else
-                return 0
+                return 1
             fi
       - run:
           name: Frontend smoke test.
