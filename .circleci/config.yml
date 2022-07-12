@@ -1,6 +1,79 @@
+# Paul Kiage
+
+# Docker Image Selection Options
+## NodeJS: https://hub.docker.com/_/node
+
+# Slack Notifications
+## https://github.com/CircleCI-Public/slack-orb/wiki/Setup
+## https://circleci.com/developer/orbs/orb/circleci/slack
+
+# VERSION
 version: 2.1
 
+# ORBS
+orbs:
+  # https://circleci.com/developer/orbs/orb/circleci/slack
+  slack: circleci/slack@4.10.1
+
+# COMMANDS
 commands:
+  # Custom failure alert messages
+  custom-failure-alert-message:
+    description: Custom failure alert messages to the UdaPeople dev team
+    parameters:
+      custom_message:
+        type: string
+    steps:
+      - slack/notify:
+          event: fail # options: always, pass, fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Job Failed. :x:",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job*: ${CIRCLE_JOB}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Custom Failure Message: <<parameters.custom_message>>"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+  # Stack commands
   destroy-environment:
     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
     parameters:
@@ -17,6 +90,7 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.workflow_id>>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.workflow_id>>
             aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
+
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -40,34 +114,48 @@ commands:
              npm run migration:revert
             fi
 
+# JOBS
 jobs:
+  # A. Deploying Trustworthy Software
+  # A1. Build Phase
+  # Check for syntax errors and unintentional typos
   build-frontend:
     docker:
+      # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
           keys: [frontend-build]
+      # Job
       - run:
-          name: Build frontend
+          name: Build frontend (check for syntax errors and unintentional typos)
           command: |
-            # Your code here
             cd frontend
             npm install
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      # Custom failure reason message
+      - custom-failure-alert-message:
+          custom_message: "Please fix frontend code syntax errors or unintentional typos"
+      # Success notification
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
   build-backend:
     docker:
+      # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      # Job
       - run:
-          name: Build backend
+          name: Build backend (check for syntax errors and unintentional typos)
           command: |
             # Your code here
             cd backend
@@ -76,10 +164,19 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      # Custom failure reason message
+      - custom-failure-alert-message:
+          custom_message: "Please fix backend code syntax errors or unintentional typos"
+      # Success notification
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
+  # A2. Test Phase
+  # Run unit tests
   test-frontend:
     docker:
-      # Docker image here
+      # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
@@ -87,16 +184,24 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys: [frontend-build]
-      # Your job code here
+      # Job
       - run:
           name: Run frontend test
           command: |
             cd frontend
             npm install
             npm run test
+      # Custom failure reason message
+      - custom-failure-alert-message:
+          custom_message: "Please fix failing frontend code unit tests"
+      # Success notification
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
   test-backend:
     docker:
-      # Docker image here
+      # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
@@ -104,16 +209,26 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys: [backend-build]
-      # Your job code here
+      # Job
       - run:
           name: Run backend test
           command: |
             cd backend
             npm install
             npm run test
+      # Custom failure reason message
+      - custom-failure-alert-message:
+          custom_message: "Please fix failing backend code unit tests"
+      # Success notification
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+  # A3. Analyze Phase
+  # Check for known security vulnerabilities
   scan-frontend:
     docker:
-      # Docker image here
+      # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
@@ -129,9 +244,17 @@ jobs:
             npm install
             npm audit fix --force
             npm audit --audit-level=critical
+      # Custom failure reason message
+      - custom-failure-alert-message:
+          custom_message: "Please address frontend packages security vulnerabilities"
+      # Success notification
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
   scan-backend:
     docker:
-      # Docker image here
+      # Compatible with NodeJS
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
@@ -148,6 +271,14 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
+      # Custom failure reason message
+      - custom-failure-alert-message:
+          custom_message: "Please address backend packages security vulnerabilities"
+      # Success notification
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
@@ -390,8 +521,12 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
 
             # handle artifact location
-            # mkdir .circleci/ansible/roles/deploy/files/
-            # mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
+            ## make parent directory
+            mkdir  -p ~/project/.circleci/ansible/roles/deploy/files/
+
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+            cp ~/project/backend/.env .circleci/ansible/roles/deploy/files/backend.env
+
 
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is ------- \n"
@@ -543,24 +678,35 @@ jobs:
 #             # your code here
 #           fi
 
+# WORKFLOW
 workflows:
   default:
     jobs:
+      # A. Deploying Trustworthy Software
+      # A1. Build Phase
+      # Check for syntax errors and unintentional typos
       - build-frontend
       - build-backend
+
+      # A2. Test Phase
+      # Run unit tests
       - test-frontend:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
+
+      # A3. Analyze Phase
+      # Check for known security vulnerabilities
       - scan-backend:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [test-feature-branch]
+          # Make sure you only run deployment-related jobs on commits to the master branch
+          filters:
+            branches:
+              only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
