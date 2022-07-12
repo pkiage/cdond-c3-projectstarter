@@ -7,6 +7,19 @@
 ## https://github.com/CircleCI-Public/slack-orb/wiki/Setup
 ## https://circleci.com/developer/orbs/orb/circleci/slack
 
+# Setup - AWS
+## https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair
+## https://serverless-stack.com/chapters/create-an-iam-user.html
+## https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/
+
+# Setup - CloudFront Distribution Primer
+## project/.circleci/files/cloudfront.yml
+
+# Setup -CircleCI
+## https://circleci.com/docs/add-ssh-key
+## https://circleci.com/docs/settings
+## https://support.circleci.com/hc/en-us/articles/360007188574-Build-has-hit-timeout-limit
+
 # VERSION
 version: 2.1
 
@@ -72,6 +85,13 @@ commands:
                 }
               ]
             }
+
+  slack-success-notification:
+    description: Slack notification on job success
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
   # Stack commands
   destroy-environment:
@@ -142,9 +162,7 @@ jobs:
       - custom-failure-alert-message:
           custom_message: "Please fix frontend code syntax errors or unintentional typos"
       # Success notification
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      - slack-success-notification
 
   build-backend:
     docker:
@@ -170,9 +188,7 @@ jobs:
       - custom-failure-alert-message:
           custom_message: "Please fix backend code syntax errors or unintentional typos"
       # Success notification
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      # - slack-success-notification
 
   # A2. Test Phase
   # Run unit tests
@@ -198,9 +214,7 @@ jobs:
       - custom-failure-alert-message:
           custom_message: "Please fix failing frontend code unit tests"
       # Success notification
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      # - slack-success-notification
 
   test-backend:
     docker:
@@ -224,9 +238,7 @@ jobs:
       - custom-failure-alert-message:
           custom_message: "Please fix failing backend code unit tests"
       # Success notification
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      # - slack-success-notification
 
   # A3. Analyze Phase
   # Check for known security vulnerabilities
@@ -253,9 +265,7 @@ jobs:
       - custom-failure-alert-message:
           custom_message: "Please address frontend packages security vulnerabilities"
       # Success notification
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      # - slack-success-notification
 
   scan-backend:
     docker:
@@ -281,10 +291,9 @@ jobs:
       - custom-failure-alert-message:
           custom_message: "Please address backend packages security vulnerabilities"
       # Success notification
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      # - slack-success-notification
 
+  # B Infrastructure Phase
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
