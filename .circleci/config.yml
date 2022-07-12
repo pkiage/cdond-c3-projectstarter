@@ -131,9 +131,10 @@ jobs:
       - run:
           name: Build frontend (check for syntax errors and unintentional typos)
           command: |
-            cd frontend
-            npm install
-            npm run build
+            # cd frontend
+            # npm install
+            # npm run build
+            exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -158,9 +159,10 @@ jobs:
           name: Build backend (check for syntax errors and unintentional typos)
           command: |
             # Your code here
-            cd backend
-            npm install
-            npm run build
+            # cd backend
+            # npm install
+            # npm run build
+            exit 1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -188,9 +190,10 @@ jobs:
       - run:
           name: Run frontend test
           command: |
-            cd frontend
-            npm install
-            npm run test
+            # cd frontend
+            # npm install
+            # npm run test
+            exit 1
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: "Please fix failing frontend code unit tests"
@@ -213,9 +216,10 @@ jobs:
       - run:
           name: Run backend test
           command: |
-            cd backend
-            npm install
-            npm run test
+            # cd backend
+            # npm install
+            # npm run test
+            exit 1
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: "Please fix failing backend code unit tests"
@@ -240,10 +244,11 @@ jobs:
       - run:
           name: Run frontend scan
           command: |
-            cd frontend
-            npm install
-            npm audit fix --force
-            npm audit --audit-level=critical
+            # cd frontend
+            # npm install
+            # npm audit fix --force
+            # npm audit --audit-level=critical
+            exit 1
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: "Please address frontend packages security vulnerabilities"
@@ -266,11 +271,12 @@ jobs:
       - run:
           name: Run backend scan
           command: |
-            cd backend
-            npm install
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
-            npm audit --audit-level=critical
+            # cd backend
+            # npm install
+            # npm audit fix --audit-level=critical --force
+            # npm audit fix --force
+            # npm audit --audit-level=critical
+            exit 1
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: "Please address backend packages security vulnerabilities"
