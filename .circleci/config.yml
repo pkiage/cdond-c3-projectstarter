@@ -20,6 +20,8 @@ commands:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
       # Add parameter here
+      workflow_id:
+        type: string
     steps:
       - run:
           name: Revert migrations
@@ -190,7 +192,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-          
+
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
