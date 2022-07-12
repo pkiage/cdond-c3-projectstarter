@@ -515,8 +515,7 @@ jobs:
             export PrevWorkflowID=$(aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
             --no-paginate --output text)
-            echo $PrevWorkflowID >> PrevWorkflowID.txt
-            cat ~/PrevWorkflowID.txt
+            echo $PrevWorkflowID 
 
             # Change the initial stack name, as applicable to you
             aws cloudformation deploy \
