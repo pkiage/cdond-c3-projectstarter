@@ -198,7 +198,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - "c8:1d:de:1e:70:bb:0c:1d:43:09:ca:82:3f:bd:7f:b2" #REPLACE_WITH_APPLICABLE
+            - "8d:61:ff:ad:be:1e:e5:4d:fa:01:62:cf:2b:19:dc:15" #REPLACE_WITH_APPLICABLE
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -222,10 +222,11 @@ jobs:
             # revealed by: sudo pm2 logs
             # after: ssh -i /path/key-pair-name.pem instance-user-name@instance-public-dns-name
             # on: local machine
-            echo ENVIRONMENT=production > ~/project/backend/.env
+            echo NODE_ENV=production > ~/project/backend/.env
             echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ~/project/backend/.env
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ~/project/backend/.env
             echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ~/project/backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ~/project/backend/.env
             echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ~/project/backend/.env
             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ~/project/backend/.env
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ~/project/backend/.env
@@ -343,7 +344,7 @@ jobs:
       - checkout
       # Add ssh keys with fingerprint
       - add_ssh_keys:
-          fingerprints: "c8:1d:de:1e:70:bb:0c:1d:43:09:ca:82:3f:bd:7f:b2" #REPLACE_WITH_APPLICABLE
+          fingerprints: "8d:61:ff:ad:be:1e:e5:4d:fa:01:62:cf:2b:19:dc:15" #REPLACE_WITH_APPLICABLE
       # attach workspace
       - attach_workspace:
           at: ~/
