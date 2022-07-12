@@ -151,10 +151,9 @@ jobs:
       - run:
           name: Build frontend (check for syntax errors and unintentional typos)
           command: |
-            # cd frontend
-            # npm install
-            # npm run build
-            exit 1
+            cd frontend
+            npm install
+            npm run build
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -177,10 +176,9 @@ jobs:
           name: Build backend (check for syntax errors and unintentional typos)
           command: |
             # Your code here
-            # cd backend
-            # npm install
-            # npm run build
-            exit 1
+            cd backend
+            npm install
+            npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
