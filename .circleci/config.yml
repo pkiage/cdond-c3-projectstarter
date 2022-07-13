@@ -848,8 +848,13 @@ workflows:
       # A1. Build Phase
       # Check for syntax errors and unintentional typos
       - build-frontend
+          filters:
+            branches:
+              only: [master,develop]
       - build-backend
-
+          filters:
+            branches:
+              only: [master, develop]
       # A2. Test Phase
       # Run unit tests
       - test-frontend:
