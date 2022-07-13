@@ -491,9 +491,9 @@ jobs:
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: 
-          "Please ensure i) appropriate docker image and installed dependencies,
-          ii) correct fingerprint,
-          iii) correctly completed configure-server ansible playbook"
+            "Please ensure i) appropriate docker image and installed dependencies,
+            ii) correct fingerprint,
+            iii) correctly completed configure-server ansible playbook"
       # Success notification
       # - slack-success-notification
 
@@ -553,9 +553,9 @@ jobs:
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: 
-          "Please ensure i) appropriate docker image and installed dependencies,
-          ii) migration status in text stored in correct place and correct path reference to it  
-          iii) bucket ID created in kvdb.io and referenced appropriately in storing success status"
+            "Please ensure i) appropriate docker image and installed dependencies,
+            ii) migration status in text stored in correct place and correct path reference to it  
+            iii) bucket ID created in kvdb.io and referenced appropriately in storing success status"
       # Success notification
       # - slack-success-notification
   
@@ -607,9 +607,9 @@ jobs:
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: 
-          "Please ensure i) appropriate docker image and installed dependencies,
-          ii) filter to describe backend ec2 URL matches with its definition in project/.circleci/files/backend.yml
-          iii) files copied to the correct S3 bucket its definition in project/.circleci/files/frontend.yml"
+            "Please ensure i) appropriate docker image and installed dependencies,
+            ii) filter to describe backend ec2 URL matches with its definition in project/.circleci/files/backend.yml
+            iii) files copied to the correct S3 bucket its definition in project/.circleci/files/frontend.yml"
       # Success notification
       # - slack-success-notification
       # URL02: Public URL for S3 bucket
@@ -674,12 +674,12 @@ jobs:
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: 
-          "Please ensure:
-          i) appropriate docker image and installed dependencies,
-          ii) correct fingerprint
-          iii) backend/.env file with relevant environment values that are also extracted into EC2 instance,
-          iv) correct reference to zipped backend artifact
-          v) zipped artifact extracted in correct destination."
+            "Please ensure:
+            i) appropriate docker image and installed dependencies,
+            ii) correct fingerprint
+            iii) backend/.env file with relevant environment values that are also extracted into EC2 instance,
+            iv) correct reference to zipped backend artifact
+            v) zipped artifact extracted in correct destination."
       # Success notification
       # - slack-success-notification
 
@@ -782,8 +782,8 @@ jobs:
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message: 
-          "If backend failed smoke test please investigate further using methods such as:
-          ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name) then view production process manager logs (sudo pm2 logs)"
+            "If backend failed smoke test please investigate further using methods such as:
+            ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name) then view production process manager logs (sudo pm2 logs)"
       # Success notification
       # - slack-success-notification
 
