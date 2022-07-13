@@ -1,43 +1,14 @@
 ---
+# Use ansible to copy the files
 # In the "deploy" role, you can extract the zipped artifact into the EC2 instance, and then start the app.
-# CC6-L4-C5-Design an Ansible Playbook
-- name: "upgrade packages."
-  become: true
-  apt:
-    upgrade: "yes"
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-- name: "install pm2."
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
 
-- name: "install rsync."
-  become: true
-  connection: local
-  package:
-    name: rsync
-    state: present
+# backend directory zipped in home directory
+# using Tape ARchive
+# in deploy-backend job in .circleci/config.yml
 
-- name: "backend binaries copy"
-  become: yes
-  synchronize:
-    src: ../../backend/dist
-    dest: /home/ubuntu/uda_app
-    recursive: true
-- name: "node_modules copy"
-  become: yes
-  synchronize:
-    src: ../../backend/node_modules
-    dest: /home/ubuntu/uda_app
-    recursive: true
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
+# unarchive module src different from dest does the copying
+# unarchive does the extracting
 
 - name: "extract the zipped artifact into the EC2 instance"
   become: true
@@ -45,24 +16,9 @@
     src: ~/project/artifact.tar.gz
     dest: /home/ubuntu
 
-- name: "delete all existing running"
-  become: true
-  command: pm2 delete all
-  ignore_errors: true
-
 - name: "start app"
   become: true
-  command: pm2 start -f ./main.js
-  args:
-    chdir: /home/ubuntu/uda_app/dist
-  environment:
-    ENVIRONMENT: production
-    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
-    TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
-    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
-    TYPEORM_PORT: 5432
-    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME')}}"
-    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD')}}"
-    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
-    TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
-    TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
+  shell: |
+    npm install  
+    pm2 stop default  
+    sudo pm2 start npm -- start
