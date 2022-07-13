@@ -29,7 +29,8 @@ commands:
       - slack/notify:
           event: fail # options: always, pass, fail
           # Tip:
-          ## For template JSON formatting do it in a JSON file e.g. project/circleci-stack-customFailAlert.json
+          ## For template JSON formatting do it in a JSON file e.g. project/notification-templates/circleci-slack-customFailAlert.json
+          ## Use linter to format e.g. Prettier
           custom: |
             {
               "blocks": [
@@ -161,7 +162,6 @@ jobs:
           # Job
           name: Build backend (check for syntax errors and unintentional typos)
           command: |
-            # Your code here
             cd backend
             npm install
             npm run build
@@ -275,12 +275,39 @@ jobs:
   # PostgreSQL in RDS with public accessibility
   # https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/
   # As long as you marked "Public Accessibility" as "yes", you won't need to worry about VPC settings or security groups
+  # Ensure to specify initial database name under Additional configuration
+  ## If you do not specify a database name, Amazon RDS does not create a database.
   # Take note of connection details:
-  ## Endpoint (Hostname): xxxx.aws_region_.rds.amazonaws.com
-  ## Instance identifier:
-  ## Database name postgres (default)
+  ## Endpoint (Hostname): db_identifier.xxxxxxxxxxxx.aws_region.rds.amazonaws.com
+  ## Instance identifier: DB instance identifier (e.g. udapeople-prod)
+  ## Database name: postgres (default)
   ## Password: xxxx
   ## Port: 5432
+  # TIPS:
+  ## TEST by running: dig endpoint
+  ### status: NOERROR? (good)
+  #### if status: NXDOMAIN then domain issue (endpoint domain doesn't exist)
+  ### Returns answer? (Good)
+  ### Answer return code is 0? (Good)
+  #### If 0 then DNS response received, including NXDOMAIN status
+  ####
+  ### https://manpages.ubuntu.com/manpages/jammy/en/man1/dig.1.html
+  ### https://linux.die.net/man/1/dig
+  ## TEST by running: nslookup -debug endpoint
+  ### Similar to dig
+  ## TEST by running: telnet endpoint 5432
+  ### Log into remote host via telnet protocol that uses TCP
+  ### Connection using port 5432 on host endpoint?
+  #### If unable to connect to remote host
+  #### If name or service not known then endpoint issue
+  ## TEST by connecting to the database using SQL Workbench.
+  ### Endpoint (Hostname, JDBC URL), Port, & Initial database name correctly captured?
+  ### Username correctly captured? (During Credential Settings>Master username)
+  ### Password correctly captured?
+  ### In AWS RDS Database summary active connection? (the SQL Workbench connection)
+
+  ## Database security group settings to prevent connection issues
+  ### Add inbound rule to open port 5432 to everyone
 
   # Setup - CloudFront Distribution Primer
 
@@ -292,7 +319,7 @@ jobs:
 
   # manually run project/.circleci/files/cloudfront.yml
   # from root of project run the following command
-  # sh setup-cfd-primer.sh S3_bucket_name
+  # sh shell-commands/setup-cfd-primer.sh S3_bucket_name
   # This creates:
   ## CloudFront Distribution connection to existing S3 bucket
   ## CloudFrontOriginAccessIdentity (CloudFront OAI)
