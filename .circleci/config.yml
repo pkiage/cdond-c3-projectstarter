@@ -1,26 +1,10 @@
 # Paul Kiage
+# Udacity Cloud DevOps Engineering Nanodegree
+# Project 3
 
 # Docker Image Selection Options
 ## NodeJS: https://hub.docker.com/_/node
 ## AWS: https://hub.docker.com/r/amazon/aws-cli
-
-# Slack Notifications
-## https://github.com/CircleCI-Public/slack-orb/wiki/Setup
-## https://circleci.com/developer/orbs/orb/circleci/slack
-
-# Setup - AWS
-## https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair
-## https://serverless-stack.com/chapters/create-an-iam-user.html
-## https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/
-
-# Setup - CloudFront Distribution Primer
-## project/.circleci/files/cloudfront.yml
-## project/setup-cfd-primer.sh
-
-# Setup -CircleCI
-## https://circleci.com/docs/add-ssh-key
-## https://circleci.com/docs/settings
-## https://support.circleci.com/hc/en-us/articles/360007188574-Build-has-hit-timeout-limit
 
 # VERSION
 version: 2.1
@@ -32,6 +16,9 @@ orbs:
 
 # COMMANDS
 commands:
+  # Slack Notifications
+  ## https://github.com/CircleCI-Public/slack-orb/wiki/Setup
+  ## https://circleci.com/developer/orbs/orb/circleci/slack
   # Custom alert messages
   custom-failure-alert-message:
     description: Custom failure alert messages to the UdaPeople dev team
@@ -275,6 +262,65 @@ jobs:
       # - slack-success-notification
 
   # B Infrastructure Phase
+
+  # Setup - AWS
+
+  # KeyPair
+  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair
+
+  # IAM user for programmatic access
+  # Configure AWS CLI to use generated keys
+  # https://serverless-stack.com/chapters/create-an-iam-user.html
+
+  # PostgreSQL in RDS with public accessibility
+  # https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/
+  # As long as you marked "Public Accessibility" as "yes", you won't need to worry about VPC settings or security groups
+  # Take note of connection details:
+  ## Endpoint (Hostname): xxxx.aws_region_.rds.amazonaws.com
+  ## Instance identifier:
+  ## Database name postgres (default)
+  ## Password: xxxx
+  ## Port: 5432
+
+  # Setup - CloudFront Distribution Primer
+
+  # For switch from old infra to new infra (Blue Green Deployment strategy)
+  # to work need to do a few things manually
+
+  # create public S3 bucket with name udapeople-random_string
+  # https://www.simplified.guide/aws/s3/create-public-bucket
+
+  # manually run project/.circleci/files/cloudfront.yml
+  # from root of project run the following command
+  # sh setup-cfd-primer.sh S3_bucket_name
+  # This creates:
+  ## CloudFront Distribution connection to existing S3 bucket
+  ## CloudFrontOriginAccessIdentity (CloudFront OAI)
+  # once initial stack is created subsequent executions
+  # will modify the same CloudFront distribution
+  # to make blue-to-grean switch without fail
+
+  # Setup - CircleCI
+
+  # Add SSH KeyPair from EC2 to additional SSH keys
+  # Obtain fingerprint
+  # https://circleci.com/docs/add-ssh-key
+
+  # Add environment variables
+  # AWS_ACCESS_KEAWS_ACCESS_KEY_ID=(from IAM user with programmatic access)
+  # AWS_SECRET_ACCESS_KEY= (from IAM user with programmatic access)
+  # AWS_DEFAULT_REGION=(your default region in aws)
+  # TYPEORM_CONNECTION=postgres
+  # TYPEORM_MIGRATIONS_DIR=./src/migrations
+  # TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+  # TYPEORM_MIGRATIONS=./src/migrations/*.ts
+  # TYPEORM_HOST={your postgres database hostname in RDS}
+  # TYPEORM_PORT=5432 (or the port from RDS if it’s different)
+  # TYPEORM_USERNAME={your postgres database username in RDS}
+  # TYPEORM_PASSWORD={your postgres database password in RDS}
+  # TYPEORM_DATABASE=postgres {or your postgres database name in RDS}Y_ID
+  # https://circleci.com/docs/settings
+
   # B1. Create Infrastructure (1.a)
   # Create infrastructure using provided CloudFormation Templates in dir project/.circleci/files
   deploy-infrastructure:
@@ -288,10 +334,10 @@ jobs:
           name: Install tar and gzip
           command: |
             yum install -y tar gzip
-            exit 1
 
       # Create a stack udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
       # Using project/.circleci/files/backend.yml
+      # Ensure correct values in project/.circleci/files/backend.yml (AMI ID, KeyPair name) applicable to AWS account/region
 
       # Default project/.circleci/files/backend.yml
       ## SecurityGroup (allow port 22 and port 3030)
@@ -313,7 +359,6 @@ jobs:
                 --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
                 --tags project=udapeople
-            exit 1
 
       # Create a stack udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
       # Using project/.circleci/files/frontend.yml
@@ -335,22 +380,19 @@ jobs:
                 --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
                 --tags project=udapeople
-            exit 1
 
       # Fetch public IP of EC2 instance specified in project/.circleci/files/backend.yml
       # Append public IP to .circleci/ansible/inventory.txt
 
       # Persist .circleci/ansible/inventory.txt since used in future jobs e.g.
-      ##
+      ## configure-infrastructure
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
-            # Your code here
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/ansible/inventory.txt
-            exit 1
       - persist_to_workspace:
           root: ~/
           paths:
@@ -367,7 +409,11 @@ jobs:
             "Please ensure i) appropriate stack name with workflow id,
             ii) correct CircleCi workflow id referencing,
             iii) correct values in project/.circleci/files/backend.yml (AMI ID, KeyPair name) applicable to AWS account/region"
+      # Success notification
+      # - slack-success-notification
 
+  # B2. Configure Infrastructure (1.b)
+  # Set up EC2 instance to run as backend
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
@@ -376,44 +422,30 @@ jobs:
       # Checkout code from git
       - checkout
       # Add ssh keys with fingerprint
+      # Gives ansible access to the EC2 instance via SSH
       - add_ssh_keys:
           fingerprints:
             - "8d:61:ff:ad:be:1e:e5:4d:fa:01:62:cf:2b:19:dc:15" #REPLACE_WITH_APPLICABLE
       # attach workspace
+      # So have access to files needed e.g. inventory
       - attach_workspace:
           at: ~/
       - run:
           name: Install dependencies
           command: |
-            # Your code here
             # Install dependencies for the next step, such as tar, gzip, ansible, or awscli.
             # no-cache to keep container small
-            apk add --update --no-cache tar 
-            apk add --update --no-cache gzip 
-            apk add --update --no-cache ansible
-            apk add --update --no-cache aws-cli 
+            apk add --update --no-cache tar gzip ansible aws-cli 
             pip install awscli
-            apk add --update --no-cache curl
+
+      # Finish Ansible playbook (project/.circleci/ansible/configure-server.yml) before configuring server
+      # Playbook will be run against EC2 instance that has been programmatically created in CircleCi job deploy-infrastructure
+
+      # Tips:
+      ## Read project/.circleci/ansible/roles/configure-server/tasks/readme.md
       - run:
           name: Configure server
           command: |
-            # Your code here
-            # environment variables
-            # attempt(fix): "trace":"error: password authentication failed for user
-            # revealed by: sudo pm2 logs
-            # after: ssh -i /path/key-pair-name.pem instance-user-name@instance-public-dns-name
-            # on: local machine
-            echo NODE_ENV=production > ~/project/backend/.env
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ~/project/backend/.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ~/project/backend/.env
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ~/project/backend/.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> ~/project/backend/.env
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ~/project/backend/.env
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ~/project/backend/.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ~/project/backend/.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> ~/project/backend/.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ~/project/backend/.env
-
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - persist_to_workspace:
@@ -424,7 +456,18 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # Custom failure reason message
+      - custom-failure-alert-message:
+          custom_message: "Please ensure i) appropriate docker image,
+            ..."
+      # Success notification
+      # - slack-success-notification
 
+      # Tip:
+      ## Check your CloudFormation console and manually delete the unnecessary stacks which are no longer required.
+
+  # C Deploy Phase
+  # C1. Database Migrations (2.a)
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
