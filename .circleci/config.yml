@@ -482,16 +482,16 @@ jobs:
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
 
-            echo "export TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
-            echo "export TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
-            echo "export TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
-            echo "export TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> backend/.env
-            echo "export TYPEORM_HOST=${TYPEORM_HOST}" >> backend/.env
-            echo "export TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> backend/.env
-            echo "export TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> backend/.env
-            echo "export TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> backend/.env
-            echo "export TYPEORM_PORT=${TYPEORM_PORT}" >> backend/.env
-            echo "export TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> backend/.env
+            echo "TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
+            echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
+            echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
+            echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> backend/.env
+            echo "TYPEORM_HOST=${TYPEORM_HOST}" >> backend/.env
+            echo "TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> backend/.env
+            echo "TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> backend/.env
+            echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> backend/.env
+            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> backend/.env
+            echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> backend/.env
 
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
