@@ -482,13 +482,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cd .circleci/ansible
+            cd ~/project.circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/backend
-
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
