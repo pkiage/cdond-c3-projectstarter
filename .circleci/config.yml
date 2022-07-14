@@ -476,12 +476,15 @@ jobs:
             apk add --update --no-cache tar gzip ansible aws-cli curl
             pip install awscli
       # https://circleci.com/developer/orbs/orb/opensimsim/setup-env-vars
+      #
       - run:
           name: Store env variables in backend/.env
           command: |
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
-
+            # HINT:
+            # echo "export TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
+            # ^ exporting in this may cause errors e.g. in parsing
             echo "TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
             echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
             echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
