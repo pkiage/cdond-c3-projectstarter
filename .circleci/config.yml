@@ -792,7 +792,9 @@ jobs:
             "If backend failed smoke test please check that tested manually created resource e.g. database before running workflow.
             If yes then please investigate further using methods such as checking kvdb bucket for migration status AND/OR disable destory-environment and revert-migration on failure in smoke test then:
             ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name) then view production process manager logs (sudo pm2 logs) or (npm run start).
-            Backend issues usually stem from configure-infrastructure or run-migrations. For frontend issue consider using Chrome developer tools"
+            For config validation error echo ${env_var_name}
+            Backend issues usually stem from configure-infrastructure or run-migrations.
+            For frontend issue consider using Chrome developer tools"
       # Success notification
       # - slack-success-notification
 
