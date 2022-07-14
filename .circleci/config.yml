@@ -548,19 +548,19 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'SUCCESSFUL MIGRATION'
-              echo Go to this URL to check migration status
-              echo https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}
+              echo "Go to this URL to check migration status"
+              echo "https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}"
               return 0
             else
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
-              echo Go to this URL to check migration status
-              echo https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}
+              echo "Go to this URL to check migration status"
+              echo "https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}"
               return 1
             fi
 
       # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message:
@@ -775,7 +775,6 @@ jobs:
           command: |
             if sleep 3 | telnet ${TYPEORM_HOST} 5432 | grep "Connected to"
             then
-                # echo "^]" # escape character (close connection)
                 echo "\nPASS: Can connect to TYPEORM_HOST on port 5432\n"
                 return 0
             else
