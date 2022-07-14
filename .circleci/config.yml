@@ -524,10 +524,12 @@ jobs:
           command: |
             cd backend
             npm install
-            npm run build
             npm run migrations > migrations_dump.txt
-            # tree -C
+            echo Show files and directories in backend (tree)
+            tree -C -L 2
+            echo Show files and directories in backend (ls)
             ls -a
+            echo Show migrations_dump.txt
             cat migrations_dump.txt
       # Send migration status to 3rd party key-value store
       # migration output will include "...has been executed successfully"
