@@ -526,7 +526,7 @@ jobs:
             npm install
             npm run migrations > migrations_dump.txt
             echo "Show files and directories in backend (tree)"
-            tree -C -L 2
+            tree -CL 2
             echo "Show files and directories in backend (ls)"
             ls -a
             echo "Show migrations_dump.txt"
@@ -548,20 +548,20 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'SUCCESSFUL MIGRATION'
-              echo "Go to this URL to check migration status"
+              echo "PASS: Go to this URL to check migration status"
               echo "https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}"
-              return 0
+              # return 0
             else
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
-              echo "Go to this URL to check migration status"
+              echo "FAIL: Go to this URL to check migration status"
               echo "https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}"
-              return 1
+              # return 1
             fi
 
       # Here's where you will add some code to rollback on failure
-      # - destroy-environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      # Custom failure reason message
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      Custom failure reason message
       - custom-failure-alert-message:
           custom_message:
             "Please ensure i) appropriate docker image and installed dependencies,
