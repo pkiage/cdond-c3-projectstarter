@@ -547,8 +547,7 @@ jobs:
             else
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
             fi
-            OUTPUT=$(grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt)
-            echo OUTPUT
+            echo Go to this URL to find if migration successful
             echo https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
@@ -785,7 +784,7 @@ jobs:
       - custom-failure-alert-message:
           custom_message:
             "If backend failed smoke test please check that tested manually created resource e.g. database before running workflow.
-            If yes then please investigate further using methods such as disable destory-environment and revert-migration on failure in smoke test then:
+            If yes then please investigate further using methods such as checking kvdb bucket for migration status AND/OR disable destory-environment and revert-migration on failure in smoke test then:
             ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name) then view production process manager logs (sudo pm2 logs) or (npm run start).
             Backend issues usually stem from configure-infrastructure or run-migrations. For frontend issue consider using Chrome developer tools"
       # Success notification
