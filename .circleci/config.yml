@@ -561,13 +561,11 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      Custom failure reason message
       - custom-failure-alert-message:
           custom_message:
             "Please ensure i) appropriate docker image and installed dependencies,
             ii) migration status in text stored in correct place and correct path reference to it
             iii) bucket ID created in kvdb.io and referenced appropriately in storing success status"
-      # Success notification
       # - slack-success-notification
 
   # B.2.b Deploy frontend (2.b)
