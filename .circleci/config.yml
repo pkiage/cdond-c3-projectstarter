@@ -475,18 +475,47 @@ jobs:
             # no-cache to keep container small
             apk add --update --no-cache tar gzip ansible aws-cli curl
             pip install awscli
+      # https://circleci.com/developer/orbs/orb/opensimsim/setup-env-vars
+      - run:
+          name: Store env variables in backend/.env
+          command: |
+            echo "Environment Variable Secret Key:"
+            echo "${TYPEORM_PORT}"
+
+            echo "export TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
+            echo "export TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
+            echo "export TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
+            echo "export TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> backend/.env
+            echo "export TYPEORM_HOST=${TYPEORM_HOST}" >> backend/.env
+            echo "export TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> backend/.env
+            echo "export TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> backend/.env
+            echo "export TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> backend/.env
+            echo "export TYPEORM_PORT=${TYPEORM_PORT}" >> backend/.env
+            echo "export TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> backend/.env
+
+            echo "Environment Variable Secret Key:"
+            echo "${TYPEORM_PORT}"
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend/.env
       # Finish Ansible playbook (project/.circleci/ansible/configure-server.yml) before configuring server
       # Playbook will be run against EC2 instance that has been programmatically created in CircleCi job deploy-infrastructure
 
       # Tips:
       ## Read project/.circleci/ansible/roles/configure-server/tasks/readme.md
+
       - run:
           name: Configure server
           command: |
-            echo "${TYPEORM_HOST}"
+            echo "Environment Variable Secret Key:"
+            echo "${TYPEORM_PORT}"
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-            echo "${TYPEORM_HOST}"
+            echo "Environment Variable Secret Key:"
+            echo "${TYPEORM_PORT}"
+
+            # Create env file
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
