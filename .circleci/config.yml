@@ -524,7 +524,8 @@ jobs:
             npm install
             npm run build
             npm run migrations > migrations_dump.txt
-            tree -C
+            # tree -C
+            ls -a
             cat migrations_dump.txt
       # Send migration status to 3rd party key-value store
       # migration output will include "...has been executed successfully"
