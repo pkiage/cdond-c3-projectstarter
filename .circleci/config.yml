@@ -306,9 +306,9 @@ jobs:
   #### If unable to connect to remote host
   #### If name or service not known then endpoint issue
   ## TEST by connecting to the database using SQL Workbench.
-  ### Endpoint (Hostname, JDBC URL), Port, & Initial database name correctly captured?
+  ### Endpoint (Hostname, JDBC URL), Port, & Initial database name (Additional Configuration>Initial Database name) correctly captured?
   ### Username correctly captured? (During Credential Settings>Master username)
-  ### Password correctly captured?
+  ### Password correctly captured? (Credential Settings>Master password))
   ### In AWS RDS Database summary active connection? (the SQL Workbench connection)
 
   ## Database security group settings to prevent connection issues
@@ -331,6 +331,10 @@ jobs:
   # once initial stack is created subsequent executions
   # will modify the same CloudFront distribution
   # to make blue-to-grean switch without fail
+  # This outputs the WorkflowID
+  # TIPS
+  # After created stack TEST if CloudFront domain is reachable by ping domain_name
+  # sh shell-commands/domain-test-reachable domain_name
 
   # Setup - CircleCI
 
@@ -342,15 +346,15 @@ jobs:
   # AWS_ACCESS_KEAWS_ACCESS_KEY_ID=(from IAM user with programmatic access)
   # AWS_SECRET_ACCESS_KEY= (from IAM user with programmatic access)
   # AWS_DEFAULT_REGION=(your default region in aws)
-  # TYPEORM_CONNECTION=postgres
+  # TYPEORM_CONNECTION=postgres 
   # TYPEORM_MIGRATIONS_DIR=./src/migrations
   # TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
   # TYPEORM_MIGRATIONS=./src/migrations/*.ts
-  # TYPEORM_HOST={your postgres database hostname in RDS}
+  # TYPEORM_HOST={your postgres database hostname in RDS} (this is a URL, endpoint)
   # TYPEORM_PORT=5432 (or the port from RDS if it’s different)
-  # TYPEORM_USERNAME={your postgres database username in RDS}
-  # TYPEORM_PASSWORD={your postgres database password in RDS}
-  # TYPEORM_DATABASE=postgres {or your postgres database name in RDS}Y_ID
+  # TYPEORM_USERNAME={your postgres database username in RDS} (Credential Settings>Master username) (At the start of endpoint url)
+  # TYPEORM_PASSWORD={your postgres database password in RDS} (Credential Settings>Master Password)
+  # TYPEORM_DATABASE=postgres {or your postgres database name in RDS} (Additional Configuration>Initial Database name)
   # https://circleci.com/docs/settings
 
   # Add the TYPEORM environment variables to project/backend/.env
