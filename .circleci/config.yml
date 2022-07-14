@@ -546,13 +546,16 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'SUCCESSFUL MIGRATION'
+              echo Go to this URL to check migration status
+              echo https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}
               return 0
             else
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
+              echo Go to this URL to check migration status
+              echo https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}
               return 1
             fi
-            echo Go to this URL to find if migration successful
-            echo https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}
+
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
