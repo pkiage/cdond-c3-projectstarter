@@ -350,9 +350,9 @@ jobs:
   # TYPEORM_MIGRATIONS_DIR=./src/migrations
   # TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
   # TYPEORM_MIGRATIONS=./src/migrations/*.ts
-  # TYPEORM_HOST={your postgres database hostname in RDS} (this is a URL, endpoint)
+  # TYPEORM_HOST={your postgres database hostname in RDS} (this is a URL, endpoint) (at start of URL is database identifier that is diff from username and database name)
   # TYPEORM_PORT=5432 (or the port from RDS if it’s different)
-  # TYPEORM_USERNAME={your postgres database username in RDS} (Credential Settings>Master username) (At the start of endpoint url)
+  # TYPEORM_USERNAME={your postgres database username in RDS} (Credential Settings>Master username)
   # TYPEORM_PASSWORD={your postgres database password in RDS} (Credential Settings>Master Password)
   # TYPEORM_DATABASE=postgres {or your postgres database name in RDS} (Additional Configuration>Initial Database name)
   # https://circleci.com/docs/settings
@@ -785,7 +785,8 @@ jobs:
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message:
-            "If backend failed smoke test please investigate further using methods such as:
+            "If backend failed smoke test please check that tested manually created resource e.g. database before running workflow.
+            If yes then please investigate further using methods such as disable destory-environment and revert-migration on failure in smoke test then:
             ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name) then view production process manager logs (sudo pm2 logs)"
       # Success notification
       # - slack-success-notification
