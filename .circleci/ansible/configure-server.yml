@@ -31,7 +31,12 @@
         name: "python3"
         state: latest
         update_cache: yes
-
+    # Use jinja template to capture env variables from CircleCI
+    # https://jinja.palletsprojects.com/en/3.1.x/
+    - name: For persistence create .env file with environment variables
+      template:
+        src: env.j2
+        dest: /home/ubuntu/.env
   # B2. Configure Infrastructure (1.b)
   # Get the environment variables from CircleCI and add to the EC2 instance
   # Object–relational mapping to create virtual object database
@@ -42,13 +47,6 @@
   # https://docs.ansible.com/ansible/latest/plugins/lookup.html
 
   tasks:
-    # Use jinja template to capture env variables from CircleCI
-    # https://jinja.palletsprojects.com/en/3.1.x/
-    - name: For persistence create .env file with environment variables
-      template:
-        src: env.j2
-        dest: /home/ubuntu/.env
-
   # B2. Configure Infrastructure (1.b)
   # Keep your playbook clean and maintainable by using roles.
   # You will need to decide what roles to create and how to split up your code.
