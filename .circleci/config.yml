@@ -448,6 +448,8 @@ jobs:
             ii) correct CircleCi workflow id referencing,
             iii) correct values in project/.circleci/files/backend.yml (AMI ID, KeyPair name) applicable to AWS account/region"
 
+  #
+
   # B.1.b Configure Infrastructure (1.b)
   # Set up EC2 instance to run as backend
   configure-infrastructure:
@@ -544,8 +546,10 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'SUCCESSFUL MIGRATION'
+              return 0
             else
               curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
+              return 1
             fi
             echo Go to this URL to find if migration successful
             echo https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}
