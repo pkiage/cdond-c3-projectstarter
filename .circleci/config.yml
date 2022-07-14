@@ -346,7 +346,7 @@ jobs:
   # AWS_ACCESS_KEAWS_ACCESS_KEY_ID=(from IAM user with programmatic access)
   # AWS_SECRET_ACCESS_KEY= (from IAM user with programmatic access)
   # AWS_DEFAULT_REGION=(your default region in aws)
-  # TYPEORM_CONNECTION=postgres 
+  # TYPEORM_CONNECTION=postgres
   # TYPEORM_MIGRATIONS_DIR=./src/migrations
   # TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
   # TYPEORM_MIGRATIONS=./src/migrations/*.ts
@@ -494,7 +494,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
       - custom-failure-alert-message:
-          custom_message: 
+          custom_message:
             "Please ensure i) appropriate docker image and installed dependencies,
             ii) correct fingerprint,
             iii) correctly completed configure-server ansible playbook"
@@ -506,7 +506,7 @@ jobs:
 
   # B.2 Deploy Phase
   # Now that infrastructure is up and running
-  # It's time to configure for dependencies 
+  # It's time to configure for dependencies
   # and move our applications files to the infra
 
   # B.2.a Database Migrations (2.a)
@@ -522,7 +522,7 @@ jobs:
           command: |
             apk add --update --no-cache tar gzip nodejs npm aws-cli curl
       # Run migrations
-      # Save evidence (in migrations_dump.txt) of any new migrations run 
+      # Save evidence (in migrations_dump.txt) of any new migrations run
       - run:
           name: Run migrations
           command: |
@@ -532,7 +532,7 @@ jobs:
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       # Send migration status to 3rd party key-value store
-      # migration output will include "...has been executed successfully" 
+      # migration output will include "...has been executed successfully"
       # if new migrations were applied
 
       # Using kvdb.io
@@ -556,13 +556,13 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
       - custom-failure-alert-message:
-          custom_message: 
+          custom_message:
             "Please ensure i) appropriate docker image and installed dependencies,
-            ii) migration status in text stored in correct place and correct path reference to it  
+            ii) migration status in text stored in correct place and correct path reference to it
             iii) bucket ID created in kvdb.io and referenced appropriately in storing success status"
       # Success notification
       # - slack-success-notification
-  
+
   # B.2.b Deploy frontend (2.b)
   deploy-frontend:
     docker:
@@ -610,7 +610,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
       - custom-failure-alert-message:
-          custom_message: 
+          custom_message:
             "Please ensure i) appropriate docker image and installed dependencies,
             ii) filter to describe backend ec2 URL matches with its definition in project/.circleci/files/backend.yml
             iii) files copied to the correct S3 bucket its definition in project/.circleci/files/frontend.yml"
@@ -639,7 +639,7 @@ jobs:
             # Install any necessary dependencies, such as tar, gzip, ansible, nodejs, and npm
             apk add --update --no-cache tar gzip curl ansible nodejs npm aws-cli git
             apk add --update --no-cache openssh rsync
-      
+
       # Install and build backend
 
       # Zip the backend directory in home directory
@@ -669,7 +669,7 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is ------- \n"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml 
+            ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -677,8 +677,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
       - custom-failure-alert-message:
-          custom_message: 
-            "Please ensure:
+          custom_message: "Please ensure:
             i) appropriate docker image and installed dependencies,
             ii) correct fingerprint
             iii) backend/.env file with relevant environment values that are also extracted into EC2 instance,
@@ -707,7 +706,7 @@ jobs:
             # no-cache to keep container small
             apk add --update --no-cache curl tar gzip nodejs npm aws-cli 
             pip install awscli
-            apk add --update --no-cache openssh rsync  
+            apk add --update --no-cache openssh rsync
       - run:
           name: Backend smoke test (hit backend API status endpoint).
           command: |
@@ -785,12 +784,11 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
       - custom-failure-alert-message:
-          custom_message: 
+          custom_message:
             "If backend failed smoke test please investigate further using methods such as:
             ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name) then view production process manager logs (sudo pm2 logs)"
       # Success notification
       # - slack-success-notification
-
 
   # cloudfront-update:
   #   docker:
@@ -803,10 +801,10 @@ jobs:
   #         name: Install dependencies
   #         command: |
   #           # your code here
-  #           apk add --update --no-cache curl 
-  #           apk add --update --no-cache tar 
-  #           apk add --update --no-cache gzip 
-  #           apk add --update --no-cache aws-cli 
+  #           apk add --update --no-cache curl
+  #           apk add --update --no-cache tar
+  #           apk add --update --no-cache gzip
+  #           apk add --update --no-cache aws-cli
   #           pip install awscli
   #     - run:
   #         name: Update cloudfront distribution
@@ -848,30 +846,25 @@ jobs:
 workflows:
   default:
     jobs:
-      # A. Deploying Trustworthy Software
+      # A. Ensure Software to be Deployed is Trustworthy
       # A1. Build Phase
       # Check for syntax errors and unintentional typos
       - build-frontend
-          filters:
-            branches:
-              only: [master,develop]
       - build-backend
-          filters:
-            branches:
-              only: [master, develop]
       # A2. Test Phase
       # Run unit tests
       - test-frontend:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-
       # A3. Analyze Phase
       # Check for known security vulnerabilities
       - scan-backend:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      # B Infrastructure Phase
+      # B.1.a Create Infrastructure (1.a)
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # Make sure you only run deployment-related jobs on commits to the master branch
@@ -879,14 +872,22 @@ workflows:
           filters:
             branches:
               only: [master, features-defaultInfra]
+      # # B.1.b Configure Infrastructure (1.b)
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      # B.2 Deploy Phase
+      # configure created infra and move app files to it
+      # B.2.a Database Migrations (2.a)
       - run-migrations:
           requires: [configure-infrastructure]
+      # B.2.b Deploy frontend (2.b)
       - deploy-frontend:
           requires: [run-migrations]
+      # B.2.c Deploy backend (2.c)
       - deploy-backend:
           requires: [run-migrations]
+      # C Smoke Test Phase
+      # Check for potential errors not yet spotted
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
