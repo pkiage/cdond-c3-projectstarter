@@ -1,7 +1,7 @@
-S3_BucketName = $1
+# Bucket Name = $1
 
 cd .circleci/files
 aws cloudformation deploy \
          --template-file cloudfront.yml \
          --stack-name InitialStack\
-         --parameter-overrides WorkflowID=${S3_BucketName}
+         --parameter-overrides WorkflowID=$1
