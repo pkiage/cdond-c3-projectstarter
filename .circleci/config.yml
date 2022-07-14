@@ -780,6 +780,12 @@ jobs:
             else
                 return 1
             fi
+      - run:
+          name: Install dependencies for custom smoke tests
+          command: |
+            # https://devcoops.com/install-dig-and-nslookup-on-alpine-linux/
+            # https://techviewleo.com/how-to-install-telnet-on-alpine-linux/
+            apk add --update --no-cache bind-tools busybox-extras
       # Custom smoke tests to build more confidence before promoting the new build to production
       - run:
           name: Backend smoke test (database domain).
