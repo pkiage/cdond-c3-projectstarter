@@ -471,7 +471,7 @@ jobs:
           command: |
             # Install dependencies for the next step, such as tar, gzip, ansible, or awscli.
             # no-cache to keep container small
-            apk add --update --no-cache tar gzip ansible aws-cli 
+            apk add --update --no-cache tar gzip ansible aws-cli curl
             pip install awscli
       # Finish Ansible playbook (project/.circleci/ansible/configure-server.yml) before configuring server
       # Playbook will be run against EC2 instance that has been programmatically created in CircleCi job deploy-infrastructure
@@ -542,10 +542,13 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/HmnnciQC9qtfnJNaBpePv3/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'SUCCESSFUL MIGRATION'
+            else
+              curl https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
             fi
-            echo grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
-            echo https://kvdb.io/HmnnciQC9qtfnJNaBpePv3/migration_${CIRCLE_WORKFLOW_ID:0:7}
+            OUTPUT=$(grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt)
+            echo OUTPUT
+            echo https://kvdb.io/G1QN6TThopQtMadgTe64jg/migration_${CIRCLE_WORKFLOW_ID:0:7}
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
