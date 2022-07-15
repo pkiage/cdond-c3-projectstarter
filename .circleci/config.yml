@@ -859,6 +859,7 @@ jobs:
       - custom-failure-alert-message:
           custom_message:
             "If backend failed smoke test please check that manually created resources pass tests e.g. database before running workflow.
+            Also make sure updated CircleCI environment variables e.g. TYPEORM_HOST
             If yes then investigate further (backend issues usually stem from configure-infrastructure or run-migrations.)
             Check kvdb bucket for migration status
             AND/OR disable both destory-environment and revert-migration on failure in steps after infra deployed e.g. smoke-test job then:
