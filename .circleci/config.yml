@@ -904,20 +904,18 @@ jobs:
             apk add --update --no-cache aws-cli
             pip install awscli
       - run:
-          name: "Get blue workflow ID"
-          command: |
-            export OldWorkFlowID=$(aws cloudformation list-exports \
-              --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate \
-              --output text)
-            echo $OldWorkFlowID >> ~/HistoricWorkflowID.txt
-            cat ~/HistoricWorkflowID.txt
-            ls -aC
-      - run:
           name: "Update cloudfront distribution"
           command: |
-            # your code here
-            # Change the initial stack name, as applicable to you
+
+            echo "Get Blue Workflow ID"
+            aws cloudformation list-exports \
+              --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate \
+              --output text > ~/PriorWorkflowID.txt
+            cat ~/PriorWorkflowID.txt
+            ls -a
+
+            echo "Blue to Green"
             aws cloudformation deploy \
                     --template-file .circleci/files/cloudfront.yml \
                     --stack-name InitialStack \
@@ -926,7 +924,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.HistoricWorkflowID.txt
+            - PriorWorkflowID.txt
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -944,12 +942,11 @@ jobs:
       - run:
           name: "Get old stack workflow id: Dead-end production stack from Blue Green Deployment "
           command: |
-            # your code here
-            ls -aC
-            cat ~/HistoricWorkflowID.txt
-            tail -1 ~/HistoricWorkflowID.txt
-            echo "OldWorkflowID: ${OldWorkflowID}"
-            echo "CIRCLE_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "Prior workflow ID"
+            export OldWorkflowID=$(cat ~/PriorWorkflowID.txt)
+
+            echo "Current workflow ID"
+            echo ${CIRCLE_WORKFLOW_ID}
 
             # Fetch the stack names  
 
@@ -962,15 +959,11 @@ jobs:
       - run:
           name: "Remove old stacks and files: Remove dead-end production stacks from Blue Green Deployment"
           command: |
-            # if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
-            # if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+            if [[ "${OldWorkflowID}" != "" && "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-            else
-              echo "Old stacks and files not removed"
             fi
       # Custom failure reason message
       - custom-failure-alert-message:
