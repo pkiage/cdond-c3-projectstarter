@@ -85,7 +85,10 @@ commands:
   #         event: pass
   #         template: basic_success_1
 
-  # Stack commands
+  # D Rollback Phase (4)
+  # If smoke-test fails we should undo all our changes
+
+  # Remove infrastructure if something goes wrong
   destroy-environment:
     description: "Destroy backend and frontend cloudformation stacks given a workflow ID."
     parameters:
@@ -102,6 +105,7 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.workflow_id>>
             aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
 
+  # Roll back to any migrations that were successfully applied during CI/CD workflow
   revert-migrations:
     description: "Revert the last migration if successfully run in the current workflow."
     parameters:
@@ -561,6 +565,7 @@ jobs:
           name: "Install dependencies"
           command: |
             apk add --update --no-cache tar gzip nodejs npm aws-cli curl tree
+            # tar makes artifacts (compressed) that improves file transfer performance
       # Run migrations
       # Save evidence (in migrations_dump.txt) of any new migrations run
       - run:
@@ -629,6 +634,7 @@ jobs:
             # Python, Ansible, Node, NPM, and AWS CLI.
             # Prefer to do these installations in multiple steps
             apk add --update --no-cache tar gzip curl ansible nodejs npm aws-cli
+            # tar makes artifacts (compressed) that improves file transfer performance
       # Done before building front-end
       # Because API_URL will be baked into front-end code
       - run:
@@ -861,57 +867,87 @@ jobs:
       # Success notification
       # - slack-success-notification
 
-  # cloudfront-update:
-  #   docker:
-  #     # Docker image here that supports AWS CLI
-  #     - image: python:3.10-alpine3.16
-  #   steps:
-  #     # Checkout code from git
-  #     - checkout
-  #     - run:
-  #         name: "Install dependencies"
-  #         command: |
-  #           # your code here
-  #           apk add --update --no-cache curl
-  #           apk add --update --no-cache tar
-  #           apk add --update --no-cache gzip
-  #           apk add --update --no-cache aws-cli
-  #           pip install awscli
-  #     - run:
-  #         name: "Update cloudfront distribution"
-  #         command: |
-  #           # your code here
-  #           # Change the initial stack name, as applicable to you
-  #           aws cloudformation deploy \
-  #                   --template-file .circleci/files/cloudfront.yml \
-  #                   --stack-name InitialStack \
-  #                   --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
-  #                   --tags project=udapeople
+  # E Promotion Phase (5)
+  # Using Blue-Green Deployment Strategy
+  # https://en.wikipedia.org/wiki/Blue-green_deployment
+  # https://docs.aws.amazon.com/whitepapers/latest/overview-deployment-options/bluegreen-deployments.html
 
-  #     # Here's where you will add some code to rollback on failure
-  #     - destroy-environment:
-  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-  #     - revert-migrations:
-  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  # Uses CloudFormation template (.circleci/files/cloudfront.yml)
+  # to change origin of CloudFront distribution to the new S3 bucket
 
-# cleanup:
-#   docker:
-#     # Docker image here
-#   steps:
-#     # Checkout code from git
-#     - run:
-#         name: "Get old stack workflow id"
-#         command: |
-#           # your code here
-#           export OldWorkflowID="the id here"
-#           export STACKS=[] #put the list of stacks here
-#     - run:
-#         name: Remove old stacks and files
-#         command: |
-#           if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#           then
-#             # your code here
-#           fi
+  cloudfront-update:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: python:3.10-alpine3.16
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: |
+            # your code here
+            apk add --update --no-cache curl
+            apk add --update --no-cache tar
+            apk add --update --no-cache gzip
+            apk add --update --no-cache aws-cli
+            pip install awscli
+      - run:
+          name: "Update cloudfront distribution"
+          command: |
+            # your code here
+            # Change the initial stack name, as applicable to you
+            aws cloudformation deploy \
+                    --template-file .circleci/files/cloudfront.yml \
+                    --stack-name InitialStack \
+                    --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+                    --tags project=udapeople
+
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
+  # F Cleanup Phase (6)
+  # The UdaPeople finance department likes it when your AWS bills
+  # are more or less the same as last month OR trending downward
+  # Clean up old dead-end production stacks created by "Blue-Green"
+  cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: "Get old stack workflow id: Dead-end production stack from Blue Green Deployment"
+          command: |
+            # your code here
+            export OldWorkflowID=$(aws cloudformation list-exports \
+              --query "Exports[?Name==\`Cloudfront-${CIRCLE_WORKFLOW_ID:0:7}\`].Value" \
+              --no-paginate --output text)
+
+            echo "OldWorkflowID: ${OldWorkflowID}"
+            echo "CIRCLE_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}"
+
+            # Fetch the stack names  
+
+            export STACKS=$(aws cloudformation list-stacks \
+              --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+
+            echo "Stack names: ${STACKS[@]}"
+
+      - run:
+          name: "Remove old stacks and files: Remove dead-end production stacks from Blue Green Deployment"
+          command: |
+            # if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
+            # if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+            else
+              echo "Old stacks and files not removed"
+            fi
 
 # WORKFLOW
 workflows:
@@ -934,6 +970,7 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+
       # B Infrastructure Phase
       # B.1.a Create Infrastructure (1.a)
       - deploy-infrastructure:
@@ -957,11 +994,20 @@ workflows:
       # B.2.c Deploy backend (2.c)
       - deploy-backend:
           requires: [run-migrations]
+
       # C Smoke Test Phase
       # Check for potential errors not yet spotted
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+
+      # D Rollback Phase if smoke-test fails
+      # Rollbacks are defined as commands
+      # Can start applying the rollback steps below starting from deploy-infrastructure job
+      ## Destroy infrastructure created
+      ## Rollback to any successful prior migrations
+
+      # E Promotion Phase
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
