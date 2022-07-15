@@ -483,8 +483,8 @@ jobs:
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
             # HINT:
-            # echo "export TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
-            # ^ exporting in this may cause errors e.g. in parsing
+            ## To avoid potential errors (e.g. in parsing) don't use export e.g. echo "export TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
+            ## First overwrite ">" to clear potential initial values then append ">>"
             echo "TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
             echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
             echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
@@ -823,19 +823,31 @@ jobs:
             fi
 
       # Here's where you will add some code to rollback on failure
-      # - destroy-environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - revert-migrations:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
       - custom-failure-alert-message:
           custom_message:
-            "If backend failed smoke test please check that tested manually created resource e.g. database before running workflow.
-            If yes then please investigate further using methods such as checking kvdb bucket for migration status AND/OR disable destory-environment and revert-migration on failure in smoke test then:
-            ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name) then view production process manager logs (sudo pm2 logs) or (npm run start).
-            For config validation error echo ${env_var_name}
-            Backend issues usually stem from configure-infrastructure or run-migrations.
-            For frontend issue consider using Chrome developer tools"
+            "If backend failed smoke test please check that manually created resources pass tests e.g. database before running workflow.
+            If yes then investigate further (backend issues usually stem from configure-infrastructure or run-migrations.)
+            Check kvdb bucket for migration status
+            AND/OR disable both destory-environment and revert-migration on failure in steps after infra deployed e.g. smoke-test job then:
+            ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name)
+            then view production process manager logs (sudo pm2 monit) and (npm run start).
+            For config validation error echo ${env_var_name} to find out if it is present.
+            If blank address this (ensure correct variables entered in CircleCI project setting. If yes likely persitance issues)
+            Discover where environment variables are present before zipped backend folder extracted in EC2 instance.
+            From the configure-infrastructure job run ${env_var_name} with a env with few characters
+            Check if output length of ${env_var_name} equal to value of env_var_name length.
+            If yes then make backend/.env containing the environment variables so that it's migrated to EC2 instance in run-migrations job
+            (this helps with ensured and easy to test persistence of env variables).
+            While creating backend/.env ensure overwrite for first variable then append the other variables
+            (this keeps the file clean and avoids unintentional/error causing clobbering)
+            After deploy ssh into the backend EC2 instance and check if the .env file is present (ls -a)
+            can further verify by viewing content of .env file in the backend EC2 instance
+            For frontend debugging and additional verification consider using Chrome developer tools"
       # Success notification
       # - slack-success-notification
 
