@@ -864,11 +864,11 @@ jobs:
             AND/OR disable both destory-environment and revert-migration on failure in steps after infra deployed e.g. smoke-test job then:
             ssh into the EC2 instance (ssh -i /path/key-pair-name.pem instance_user_name@instance_public_dns_name) remember to chmod 400 pem file first if haven't so already
             then view production process manager logs (sudo pm2 monit) and (npm run start).
-            For config validation error echo ${env_var_name} to find out if it is present.
+            For config validation error echo '${env_var_name}' to find out if it is present.
             If blank address this (ensure correct variables entered in CircleCI project setting. If yes likely persitance issues)
             Discover where environment variables are present before zipped backend folder extracted in EC2 instance.
-            From the configure-infrastructure job run ${env_var_name} with a env with few characters
-            Check if output length of ${env_var_name} equal to value of env_var_name length.
+            From the configure-infrastructure job run '${env_var_name}' with a env with few characters
+            Check if output length of '${env_var_name}' equal to value of env_var_name length.
             If yes then make backend/.env containing the environment variables so that it's migrated to EC2 instance in run-migrations job
             (this helps with ensured and easy to test persistence of env variables).
             While creating backend/.env ensure overwrite for first variable then append the other variables
