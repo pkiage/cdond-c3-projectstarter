@@ -939,6 +939,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      # attach workspace
+      # So have access to files needed e.g. PriorWorkflowID.txt
+      - attach_workspace:
+          at: ~/
       - run:
           name: "Get old stack workflow id: Dead-end production stack from Blue Green Deployment "
           command: |
