@@ -912,6 +912,7 @@ jobs:
               --output text)
             echo $OldWorkFlowID >> ~/HistoricWorkflowID.txt
             cat ~/HistoricWorkflowID.txt
+            ls -aC
       - run:
           name: "Update cloudfront distribution"
           command: |
@@ -925,7 +926,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - HistoricWorkflowID.txt
+            - project/.HistoricWorkflowID.txt
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -944,6 +945,7 @@ jobs:
           name: "Get old stack workflow id: Dead-end production stack from Blue Green Deployment "
           command: |
             # your code here
+            ls -aC
             cat ~/HistoricWorkflowID.txt
             tail -1 ~/HistoricWorkflowID.txt
             echo "OldWorkflowID: ${OldWorkflowID}"
