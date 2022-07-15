@@ -21,7 +21,7 @@ commands:
   ## https://circleci.com/developer/orbs/orb/circleci/slack
   # Custom alert messages
   custom-failure-alert-message:
-    description: Custom failure alert messages to the UdaPeople dev team
+    description: "Custom failure alert messages to the UdaPeople dev team"
     parameters:
       custom_message:
         type: string
@@ -79,7 +79,7 @@ commands:
             }
 
   # slack-success-notification:
-  #   description: Slack notification on job success
+  #   description: "Slack notification on job success"
   #   steps:
   #     - slack/notify:
   #         event: pass
@@ -87,13 +87,13 @@ commands:
 
   # Stack commands
   destroy-environment:
-    description: Destroy backend and frontend cloudformation stacks given a workflow ID.
+    description: "Destroy backend and frontend cloudformation stacks given a workflow ID."
     parameters:
       workflow_id:
         type: string
     steps:
       - run:
-          name: Destroy environments
+          name: "Destroy environments"
           when: on_fail
           command: |
             echo "${CIRCLE_WORKFLOW_ID}"
@@ -103,13 +103,13 @@ commands:
             aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
 
   revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
+    description: "Revert the last migration if successfully run in the current workflow."
     parameters:
       workflow_id:
         type: string
     steps:
       - run:
-          name: Revert migrations
+          name: "Revert migrations"
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
@@ -139,7 +139,7 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: Build frontend (check for syntax errors and unintentional typos)
+          name: "Build frontend: Check for syntax errors and unintentional typos"
           command: |
             cd frontend
             npm install
@@ -162,7 +162,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
           # Job
-          name: Build backend (check for syntax errors and unintentional typos)
+          name: "Build backend: Check for syntax errors and unintentional typos)"
           command: |
             cd backend
             npm install
@@ -187,7 +187,7 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: Run frontend test
+          name: "Run frontend test"
           command: |
             cd frontend
             npm install
@@ -207,7 +207,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Run backend test
+          name: "Run backend test"
           command: |
             cd backend
             npm install
@@ -229,7 +229,7 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: Run frontend scan
+          name: "Run frontend scan"
           command: |
             cd frontend
             npm install
@@ -250,7 +250,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Run backend scan
+          name: "Run backend scan"
           command: |
             cd backend
             npm install
@@ -369,7 +369,7 @@ jobs:
       # Checkout code from git
       - checkout
       - run:
-          name: Install tar and gzip
+          name: "Install tar and gzip"
           command: |
             yum install -y tar gzip
 
@@ -855,7 +855,7 @@ jobs:
   #           apk add --update --no-cache aws-cli
   #           pip install awscli
   #     - run:
-  #         name: Update cloudfront distribution
+  #         name: "Update cloudfront distribution"
   #         command: |
   #           # your code here
   #           # Change the initial stack name, as applicable to you
@@ -877,7 +877,7 @@ jobs:
 #   steps:
 #     # Checkout code from git
 #     - run:
-#         name: Get old stack workflow id
+#         name: "Get old stack workflow id"
 #         command: |
 #           # your code here
 #           export OldWorkflowID="the id here"
