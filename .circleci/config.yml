@@ -293,6 +293,8 @@ jobs:
   ## Password: xxxx
   ## Port: 5432
   # TIPS:
+  ## Wait for database to be status available before testing
+  ## If copy pasting password into AWS make sure copy the right thing
   ## TEST by running: dig endpoint
   ### status: NOERROR? (good)
   #### if status: NXDOMAIN then domain issue (endpoint domain doesn't exist)
