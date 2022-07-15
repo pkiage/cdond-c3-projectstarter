@@ -161,8 +161,8 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-          # Job
-          name: "Build backend: Check for syntax errors and unintentional typos)"
+      - run:
+          name: "Build backend: Check for syntax errors and unintentional typos"
           command: |
             cd backend
             npm install
@@ -667,7 +667,8 @@ jobs:
       - checkout
       # Add ssh keys with fingerprint
       - add_ssh_keys:
-          fingerprints: "8d:61:ff:ad:be:1e:e5:4d:fa:01:62:cf:2b:19:dc:15" #REPLACE_WITH_APPLICABLE
+          fingerprints:
+            - "8d:61:ff:ad:be:1e:e5:4d:fa:01:62:cf:2b:19:dc:15" #REPLACE_WITH_APPLICABLE
       # attach workspace
       - attach_workspace:
           at: ~/
