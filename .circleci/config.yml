@@ -237,6 +237,7 @@ jobs:
           command: |
             cd frontend
             npm install
+            npm update
             npm audit fix --force
             npm audit --audit-level=critical
       # Custom failure reason message
@@ -258,6 +259,7 @@ jobs:
           command: |
             cd backend
             npm install
+            npm update
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
