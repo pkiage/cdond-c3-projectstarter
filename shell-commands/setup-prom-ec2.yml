@@ -13,6 +13,9 @@ Resources:
       # Last updated: 2022-07-08
       ImageId: "ami-0ddf424f81ddb0720"
       InstanceType: t2.micro
+      Tags:
+        - Key: Name
+          Value: udapeople_prom
 
   InstanceSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
