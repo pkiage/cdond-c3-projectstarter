@@ -78,12 +78,12 @@ commands:
               ]
             }
 
-  # slack-success-notification:
-  #   description: "Slack notification on job success"
-  #   steps:
-  #     - slack/notify:
-  #         event: pass
-  #         template: basic_success_1
+  slack-success-notification:
+    description: "Slack notification on job success"
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
   # D Rollback Phase (4)
   # If smoke-test fails we should undo all our changes
