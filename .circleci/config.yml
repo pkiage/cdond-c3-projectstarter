@@ -735,7 +735,7 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is ------- \n"
+            echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
@@ -776,7 +776,7 @@ jobs:
             pip install awscli
             apk add --update --no-cache openssh rsync
       - run:
-          name: "Backend smoke test: Hit backend API status endpoint)."
+          name: "Backend smoke test: Hit backend API status endpoint"
           command: |
             # Get backend url
             export BACKEND_IP=$(aws ec2 describe-instances \
@@ -820,20 +820,20 @@ jobs:
             apk add --update --no-cache bind-tools busybox-extras
       # Custom smoke tests to build more confidence before promoting the new build to production
       - run:
-          name: "Backend smoke test: Database domain)."
+          name: "Backend smoke test: Database domain"
           command: |
             if dig ${TYPEORM_HOST} | grep "status: NOERROR"
             then
-                echo "\nPASS(NOERROR): DNS response received\n"
+                echo "PASS(NOERROR): DNS response received"
                 return 0
             elif dig ${TYPEORM_HOST} | grep "status: NXDOMAIN"
             then
-                echo "\nFAIL(NXDOMAIN): Non-Existent Domain\n"
+                echo "FAIL(NXDOMAIN): Non-Existent Domain"
                 return 1
             else
-                echo "\nFAIL: start investigating failure reason below\n"
+                echo "FAIL: start investigating failure reason below"
                 dig ${TYPEORM_HOST}
-                echo "\nNSLOOKUP\n"
+                echo "NSLOOKUP"
                 nslookup -debug ${TYPEORM_HOST}
                 return 1
             fi
@@ -842,10 +842,10 @@ jobs:
           command: |
             if sleep 3 | telnet ${TYPEORM_HOST} 5432 | grep "Connected to"
             then
-                echo "\nPASS: Can connect to TYPEORM_HOST on port 5432\n"
+                echo "PASS: Can connect to TYPEORM_HOST on port 5432"
                 return 0
             else
-                echo "\nFAIL: check endpoint name and configuration (inbound rules etc.)\n"
+                echo "FAIL: check endpoint name and configuration (inbound rules etc.)"
                 telnet ${TYPEORM_HOST} 5432
                 return 1
             fi
