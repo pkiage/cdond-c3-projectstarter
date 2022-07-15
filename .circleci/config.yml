@@ -477,7 +477,7 @@ jobs:
           command: |
             # Install dependencies for the next step, such as tar, gzip, ansible, or awscli.
             # no-cache to keep container small
-            apk add --update --no-cache tar gzip ansible aws-cli curl
+            apk add --update --no-cache tar gzip ansible aws-cli curl npm nodejs
             pip install awscli
       # https://circleci.com/docs/env-vars
       - run:
@@ -511,7 +511,6 @@ jobs:
             echo "Secret key variable value number of characters"
             echo "For TYPEORM_PORT should be 4"
             expr length ${TYPEORM_PORT}
-
       - persist_to_workspace:
           root: ~/
           paths:
@@ -532,8 +531,17 @@ jobs:
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
 
-            # Create env file
-      # Here's where you will add some code to rollback on failure
+      # Alerts
+      # Add a section to your back-end configuration job to install the node_exporter for Prometheus monitoring.
+      # This should be done using Ansible.
+
+      - run:
+          name: "Setup Backend Monitoring with Prometheus"
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-prometheus-node-exporter.yml
+
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
