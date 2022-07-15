@@ -328,7 +328,7 @@ jobs:
 
   # manually run project/.circleci/files/cloudfront.yml
   # from root of project run the following command
-  # sh shell-commands/setup-cfd-primer.sh S3_bucket_name
+  # sh shell-commands/setup-cloudfront-primer.sh S3_bucket_name
   # This creates:
   ## CloudFront Distribution connection to existing S3 bucket
   ## CloudFrontOriginAccessIdentity (CloudFront OAI)
