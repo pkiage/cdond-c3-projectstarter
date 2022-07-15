@@ -389,7 +389,7 @@ jobs:
       ## For backend environment variables create and use project/backend/.env
 
       - run:
-          name: Ensure backend infrastructure exists
+          name: "Ensure backend infrastructure exists"
           command: |
             # Use the workflow id to mark your CloudFormation stacks so that you can reference them later on (ex: rollback). 
             aws cloudformation deploy \
@@ -411,7 +411,7 @@ jobs:
       ## you need paths to resources to be relative (ex: ./scripts instead of /scripts).
 
       - run:
-          name: Ensure frontend infrastructure exist
+          name: "Ensure frontend infrastructure exist"
           command: |
             aws cloudformation deploy \
                 --template-file .circleci/files/frontend.yml \
@@ -425,7 +425,7 @@ jobs:
       # Persist .circleci/ansible/inventory.txt since used in future jobs e.g.
       ## configure-infrastructure
       - run:
-          name: Add the EC2 instance IP to the Ansible inventory
+          name: "Add the EC2 instance IP to the Ansible inventory"
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -469,7 +469,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: "Install dependencies"
           command: |
             # Install dependencies for the next step, such as tar, gzip, ansible, or awscli.
             # no-cache to keep container small
@@ -478,7 +478,7 @@ jobs:
       # https://circleci.com/developer/orbs/orb/opensimsim/setup-env-vars
       #
       - run:
-          name: Store env variables in backend/.env
+          name: "Store env variables in backend/.env"
           command: |
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
@@ -509,7 +509,7 @@ jobs:
       ## Read project/.circleci/ansible/roles/configure-server/tasks/readme.md
 
       - run:
-          name: Configure server
+          name: "Configure server"
           command: |
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
@@ -548,13 +548,13 @@ jobs:
       # Checkout code from git
       - checkout
       - run:
-          name: Install dependencies
+          name: "Install dependencies"
           command: |
             apk add --update --no-cache tar gzip nodejs npm aws-cli curl tree
       # Run migrations
       # Save evidence (in migrations_dump.txt) of any new migrations run
       - run:
-          name: Run migrations
+          name: "Run migrations"
           command: |
             cd backend
             npm install
@@ -577,7 +577,7 @@ jobs:
       # In step replace with applicable bucket ID "xxxxxxxxxxxxxxxxxxxxxx" geneated in local terminal
 
       - run:
-          name: Send migration status to kvdb.io
+          name: "Send migration status to kvdb.io"
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
@@ -614,7 +614,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: "Install dependencies"
           command: |
             # Python, Ansible, Node, NPM, and AWS CLI.
             # Prefer to do these installations in multiple steps
@@ -622,7 +622,7 @@ jobs:
       # Done before building front-end
       # Because API_URL will be baked into front-end code
       - run:
-          name: Get backend url
+          name: "Get backend url"
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
             --filter "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -635,7 +635,7 @@ jobs:
       # Bake the backend url into the frontend
       # Copy the files into new S3 bucket
       - run:
-          name: Deploy frontend objects
+          name: "Deploy frontend objects"
           command: |
             cd frontend
             npm install
@@ -672,7 +672,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: "Install dependencies"
           command: |
             # your code here
             # Install any necessary dependencies, such as tar, gzip, ansible, nodejs, and npm
@@ -698,7 +698,7 @@ jobs:
       # Tip:
       # Read .circleci/ansible/roles/deploy/tasks/readme.md
       - run:
-          name: Deploy backend
+          name: "Deploy backend"
           command: |
             cd backend
             npm i
@@ -738,7 +738,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: "Install dependencies"
           command: |
             # your code here
             # Install dependencies like curl, nodejs, npm, or awscli.
@@ -747,7 +747,7 @@ jobs:
             pip install awscli
             apk add --update --no-cache openssh rsync
       - run:
-          name: Backend smoke test (hit backend API status endpoint).
+          name: "Backend smoke test: Hit backend API status endpoint)."
           command: |
             # Get backend url
             export BACKEND_IP=$(aws ec2 describe-instances \
@@ -769,7 +769,7 @@ jobs:
                 return 1
             fi
       - run:
-          name: Frontend smoke test.
+          name: "Frontend smoke test."
           command: |
             # your code here
             # Form the front-end url using the workflow id and your AWS region.
@@ -784,14 +784,14 @@ jobs:
                 return 1
             fi
       - run:
-          name: Install dependencies for custom smoke tests
+          name: "Install dependencies for custom smoke tests"
           command: |
             # https://devcoops.com/install-dig-and-nslookup-on-alpine-linux/
             # https://techviewleo.com/how-to-install-telnet-on-alpine-linux/
             apk add --update --no-cache bind-tools busybox-extras
       # Custom smoke tests to build more confidence before promoting the new build to production
       - run:
-          name: Backend smoke test (database domain).
+          name: "Backend smoke test: Database domain)."
           command: |
             if dig ${TYPEORM_HOST} | grep "status: NOERROR"
             then
@@ -809,7 +809,7 @@ jobs:
                 return 1
             fi
       - run:
-          name: Backend smoke test (database connection on port 5432 of endpoint).
+          name: "Backend smoke test: Database connection on port 5432 of endpoint)."
           command: |
             if sleep 3 | telnet ${TYPEORM_HOST} 5432 | grep "Connected to"
             then
@@ -846,7 +846,7 @@ jobs:
   #     # Checkout code from git
   #     - checkout
   #     - run:
-  #         name: Install dependencies
+  #         name: "Install dependencies"
   #         command: |
   #           # your code here
   #           apk add --update --no-cache curl
