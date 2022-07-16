@@ -888,42 +888,38 @@ jobs:
   # Uses CloudFormation template (.circleci/files/cloudfront.yml)
   # to change origin of CloudFront distribution to the new S3 bucket
 
+  # https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy/index.html
+
   cloudfront-update:
     docker:
       # Docker image here that supports AWS CLI
-      - image: python:3.10-alpine3.16
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
       - run:
           name: "Install dependencies"
           command: |
-            # your code here
-            apk add --update --no-cache curl
-            apk add --update --no-cache tar
-            apk add --update --no-cache gzip
-            apk add --update --no-cache aws-cli
-            pip install awscli
+            yum install -y tar gzip tree
       - run:
           name: "Update cloudfront distribution"
           command: |
 
-            echo "Export from ./circleci/files/cloudfront.yml to give manually created bucket name"
-            aws cloudformation list-exports \
-              --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate \
-              --output text > ~/PriorWorkflowID.txt
+            ls -a
+            tree -CL 2
 
             echo "Blue to Green"
+            # Stack name defined in shell-commands/setup-cloudfront-primer.sh
+            # Update the workflow ID 
+            # If first time running WorkflowID changes FROM initial bucket name created manually 
+            # TO ${CIRCLE_WORKFLOW_ID:0:7}
+            # Updating a stack not creating a new one
             aws cloudformation deploy \
                     --template-file .circleci/files/cloudfront.yml \
-                    --stack-name CloudFormationStack \
-                    --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+                    --stack-name cloudfrontStackInitial \
+                    --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
                     --tags project=udapeople
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - PriorWorkflowID.txt
+
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -942,48 +938,70 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum -y install tar gzip
-      # attach workspace
-      # So have access to files needed e.g. PriorWorkflowID.txt
-      - attach_workspace:
-          at: ~/
+            yum install -y tar gzip tree
       - run:
           name: "Get old stack workflow id: Dead-end production stack from Blue Green Deployment "
           command: |
-            echo "Prior workflow ID"
-            export OldWorkflowID=$(cat ~/PriorWorkflowID.txt)
+            ls -a
+            tree -CL 2
 
-            echo "Current workflow ID"
-            echo ${CIRCLE_WORKFLOW_ID:0:7}
+            # Updated a stack in cloudfront-update if created a new one 
+            # Fetch the Old workflow ID
+            # HINT: 
+            # If you updated the manually created cloudfront stack rather than create a new one &
+            # to save resources you were deleting infra such as
+            ## - deleting stacks when a job fails
+            ## - deleted the bucket created manually
+            ## - deleting frontend stack and backend stack resources after each workflow so starting new workflows without any automatically created infra
+            # then your prior workflow ID will be equal to current workflow ID therefore nothing to cleanup
+            # the only aws cloudfront deploys here are manually (shell-commands) for initial cloudfront, deploy-infrastructure (front and back end), and updating cloudfront initially manually deployed
+
+            # Gets WorkflowID output exported after running .circleci/files/cloudfront.yml
+            export PriorWorkflowID=$(aws cloudformation \
+                    list-exports \
+                    --query "Exports[?Name==\`WorkflowID\`].Value" \
+                    --no-paginate --output text)
+
+            echo "PriorWorkflowID: ${PriorWorkflowID}"
+            echo "CIRCLE_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}"
 
             # Fetch the stack names  
-
             export STACKS=$(aws cloudformation list-stacks \
               --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
 
+            # If more than one stack name with same prefix (e.g. two udapeople-frontend) then need to cleanup
             echo "Stack names: ${STACKS[@]}"
 
       - run:
           name: "Remove old stacks and files: Remove dead-end production stacks from Blue Green Deployment"
           command: |
-            if [[ "${OldWorkflowID}" != "" && "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${PriorWorkflowID}" ]]
             then
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              echo "Already clean/nothing to clean"
+            else
+              echo "Cleaning up"
+
+              echo "Emptying bucket created by .circleci/files/frontend.yml"
+              # need to empty bucket before deleting it when deleting frontend stack
+              aws s3 rm "s3://udapeople-${PriorWorkflowID}" --recursive
+
+              echo "Deleting frontend stack (S3 bucket and policy) created by .circleci/files/frontend.yml"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${PriorWorkflowID}"
+
+              echo "Deleting backend stack (EC2 instance and rules) created by .circleci/files/backend.yml"
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${PriorWorkflowID}"
             fi
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-      # Custom failure reason message
       - custom-failure-alert-message:
-          custom_message:
-            "If this is the first time running the workflow then will fail because no prior workflows please run another workflow.
-            If prior workflows exist ensure the OldWorkflowID is being appropriately captured."
-      # Success notification
+          custom_message: "Cleanup failed please ensure
+            using appropriate docker image,
+            installed required dependencies,
+            correctly running shell commands"
       - slack-success-notification
 
 # WORKFLOW
