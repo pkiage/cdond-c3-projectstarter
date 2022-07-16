@@ -303,7 +303,6 @@ jobs:
   ### Returns answer? (Good)
   ### Answer return code is 0? (Good)
   #### If 0 then DNS response received, including NXDOMAIN status
-  ####
   ### https://manpages.ubuntu.com/manpages/jammy/en/man1/dig.1.html
   ### https://linux.die.net/man/1/dig
   ## TEST by running: nslookup -debug endpoint
@@ -332,7 +331,8 @@ jobs:
 
   # manually run project/.circleci/files/cloudfront.yml
   # from root of project run the following command
-  # sh shell-commands/setup-cloudfront-primer.sh S3_bucket_name
+  # sh shell-commands/setup-cloudfront-primer.sh S3_bucket_id
+  # S3_bucket_id should be random_string given bucket name of udapeople-random_string
   # This creates:
   ## CloudFront Distribution connection to existing S3 bucket
   ## CloudFrontOriginAccessIdentity (CloudFront OAI)
@@ -908,13 +908,11 @@ jobs:
           name: "Update cloudfront distribution"
           command: |
 
-            echo "Get Blue Workflow ID"
+            echo "Export from ./circleci/files/cloudfront.yml to give manually created bucket name"
             aws cloudformation list-exports \
               --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate \
               --output text > ~/PriorWorkflowID.txt
-            cat ~/PriorWorkflowID.txt
-            ls -a
 
             echo "Blue to Green"
             aws cloudformation deploy \
@@ -935,6 +933,7 @@ jobs:
   # The UdaPeople finance department likes it when your AWS bills
   # are more or less the same as last month OR trending downward
   # Clean up old dead-end production stacks created by "Blue-Green"
+  # In this you will write code that deletes the previous S3 bucket and EC2 instance.
   cleanup:
     docker:
       - image: amazon/aws-cli
@@ -955,7 +954,7 @@ jobs:
             export OldWorkflowID=$(cat ~/PriorWorkflowID.txt)
 
             echo "Current workflow ID"
-            echo ${CIRCLE_WORKFLOW_ID}
+            echo ${CIRCLE_WORKFLOW_ID:0:7}
 
             # Fetch the stack names  
 
