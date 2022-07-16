@@ -7,5 +7,5 @@
 cd .circleci/files
 aws cloudformation deploy \
          --template-file cloudfront.yml \
-         --stack-name CloudFormationStack\
+         --stack-name cloudfrontStackInitial\
          --parameter-overrides WorkflowID=$1
