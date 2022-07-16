@@ -8,7 +8,7 @@ Resources:
     Properties:
       SecurityGroups:
         - !Ref InstanceSecurityGroup
-      KeyName: udacity-prometheus
+      KeyName: udapeople
       # Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2022-06-10
       # Last updated: 2022-07-08
       ImageId: "ami-0ddf424f81ddb0720"
