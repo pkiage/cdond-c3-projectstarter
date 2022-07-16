@@ -10,11 +10,12 @@ https://web.archive.org/web/20220711141054/http://udapeople-cbbf5d6.s3-website-u
 
 [URL03_SCREENSHOT]: Evidence of deployed and functioning front-end application in CloudFront
 
-d2evdq1ejzxlkw.cloudfront.net
+d3url0g24t94in.cloudfront.net
 
 Redirects to:
-https://udapeople-5e4f7f4.s3-us-west-2.amazonaws.com/index.html#/employees
-https://web.archive.org/web/20220712104327/https://udapeople-5e4f7f4.s3-us-west-2.amazonaws.com/index.html#/employees
+(Using http not https because no SSL certificate)
+http://udapeople-c521aeb.s3-us-west-2.amazonaws.com/index.html
+
 
 [URL04_SCREENSHOT]: Evidence of healthy back-end application.
-
+http://18.236.77.136
