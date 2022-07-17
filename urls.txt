@@ -5,17 +5,14 @@ https://github.com/pkiage/cdond-c3-projectstarter
 
 [URL02]: Evidence of deployed and functioning front-end application in an S3 bucket 
 
-http://udapeople-cbbf5d6.s3-website-us-west-2.amazonaws.com
-https://web.archive.org/web/20220711141054/http://udapeople-cbbf5d6.s3-website-us-west-2.amazonaws.com/#/employees
+http://udapeople-ae1a57c.s3-website-us-west-2.amazonaws.com
+https://web.archive.org/web/20220717134839/http://udapeople-ae1a57c.s3-website-us-west-2.amazonaws.com/#/employees
 
 [URL03_SCREENSHOT]: Evidence of deployed and functioning front-end application in CloudFront
 
-d3url0g24t94in.cloudfront.net
+d2xzyj0duy6fi8.cloudfront.net
 
 Redirects to:
-(Using http not https because no SSL certificate)
-http://udapeople-c521aeb.s3-us-west-2.amazonaws.com/index.html
+(Using http not https because no SSL certificate & also using archived link)
+https://web.archive.org/web/20220717134613/http://udapeople-ae1a57c.s3-us-west-2.amazonaws.com/index.html#/employees
 
-
-[URL04_SCREENSHOT]: Evidence of healthy back-end application.
-http://18.236.77.136
