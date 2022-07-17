@@ -499,7 +499,8 @@ jobs:
             # HINT:
             ## To avoid potential errors (e.g. in parsing) don't use export e.g. echo "export TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
             ## First overwrite ">" to clear potential initial values then append ">>"
-            echo "TYPEORM_PORT=${TYPEORM_PORT}" > backend/.env
+            echo "NODE_ENV=production" > backend/.env
+            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> backend/.env
             echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
             echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
             echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> backend/.env
@@ -509,6 +510,7 @@ jobs:
             echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> backend/.env
             echo "TYPEORM_PORT=${TYPEORM_PORT}" >> backend/.env
             echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> backend/.env
+
 
             echo "Environment Variable Secret Key:"
             echo "TYPEORM_PORT: ${TYPEORM_PORT}"
