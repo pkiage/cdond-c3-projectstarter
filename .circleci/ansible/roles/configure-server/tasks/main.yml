@@ -1,0 +1,28 @@
+---
+# CC6-L4-C5-Design an Ansible Playbook
+# Update/upgrade packages
+- name: "update/upgrade packages"
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 # 86400 seconds = 1 day
+- name: "remove unused dependencies to improve performance"
+  become: true
+  apt:
+    autoremove: yes
+
+# Install nodejs, npm, and pm2
+- name: "install nodejs and npm"
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: latest
