@@ -3,7 +3,7 @@ Description: >
 
 Parameters:
   ID:
-    Description: Unique identifier.
+    Description: "Unique identifier."
     Type: String
 
 Resources:
@@ -11,19 +11,22 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: !Sub UdaPeople-${ID}
-      GroupDescription: Allow port 22, port 3030, and port 5432
+      GroupDescription: "Allow port 22, 3030, and 9100 for ssh, udapeople app, and prometheus-node-exporter respectively"
       SecurityGroupIngress:
+        # ssh
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
+        # udapeople app
         - IpProtocol: tcp
           FromPort: 3030
           ToPort: 3030
           CidrIp: 0.0.0.0/0
+        # prometheus-node-exporter
         - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
+          FromPort: 9100
+          ToPort: 9100
           CidrIp: 0.0.0.0/0
 
   EC2Instance:
@@ -32,12 +35,12 @@ Resources:
       InstanceType: t2.micro
       SecurityGroups:
         - Ref: InstanceSecurityGroup
-      KeyName: udapeople
+      KeyName: udapeople # B1. Create Infrastructure (1.a)
       # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
       # Ubuntu 18 or higher works fine
       # Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2022-06-10
       # Last update: 2022-07-09
-      ImageId: ami-0ddf424f81ddb0720
+      ImageId: ami-0ddf424f81ddb0720 # B1. Create Infrastructure (1.a)
       Tags:
         - Key: Name
           # Value used in aws ec2 describe-instances

@@ -15,7 +15,11 @@ Resources:
       InstanceType: t2.micro
       Tags:
         - Key: Name
+<<<<<<< HEAD
           Value: udapeople_prom0001
+=======
+          Value: udapeople_prom
+>>>>>>> 5861c0846c4dfb7e1dfa7376eea571f4c5e1146a
 
   InstanceSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"

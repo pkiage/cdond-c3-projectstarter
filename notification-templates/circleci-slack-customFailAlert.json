@@ -1,0 +1,45 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "Job Failed. :x:",
+        "emoji": true
+      }
+    },
+    {
+      "type": "section",
+      "fields": [
+        {
+          "type": "mrkdwn",
+          "text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Job*: ${CIRCLE_JOB}"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Custom Failure Message: <<parameters.custom_message>>"
+      }
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "View Job"
+          },
+          "url": "${CIRCLE_BUILD_URL}"
+        }
+      ]
+    }
+  ]
+}
