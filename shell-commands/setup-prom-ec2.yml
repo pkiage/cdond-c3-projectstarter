@@ -1,0 +1,56 @@
+# CC6-L5-C6-Set Up Prometheus
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Create EC2 Instance"
+
+Resources:
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      KeyName: udapeople
+      # Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2022-06-10
+      # Last updated: 2022-07-08
+      ImageId: "ami-0ddf424f81ddb0720"
+      InstanceType: t2.micro
+      Tags:
+        - Key: Name
+          Value: udapeople_prom
+
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Enable access for Prometheus"
+      SecurityGroupIngress:
+        # ssh
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        # prometheus-server
+        - IpProtocol: tcp
+          FromPort: 9090
+          ToPort: 9090
+          CidrIp: 0.0.0.0/0
+        # prometheus-node-exporter
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0
+        # alert-manager
+        - IpProtocol: tcp
+          FromPort: 9093
+          ToPort: 9093
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  PublicIp:
+    Description: "EC2Instance Public IP: Change PublicIp separators from '.' to '-' to get EC2 Public DNS name "
+    Value: !Join
+      - ""
+      - - "ec2-"
+        - !GetAtt EC2Instance.PublicIp
+        - ".us-west-2"
+        - ".compute.amazonaws.com"
+    Export:
+      Name: !Sub "${AWS::StackName}-PublicIP"
