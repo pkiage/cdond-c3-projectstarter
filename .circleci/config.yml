@@ -536,18 +536,6 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
-
-      # Alerts
-      # Add a section to your back-end configuration job to install the node_exporter for Prometheus monitoring.
-      # This should be done using Ansible.
-
-      - run:
-          name: "Setup Backend Monitoring with Prometheus"
-          command: |
-            cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt configure-prometheus-node-exporter.yml
-
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
