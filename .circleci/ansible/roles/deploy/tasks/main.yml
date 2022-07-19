@@ -34,6 +34,11 @@
     global: yes
     production: yes
 
+# install/specify project recommended NodeJS version
+- name: "specify nodejs 13.8.0"
+  become: true
+  shell: n 13.8.0
+
 # Use ansible to copy the files
 # In the "deploy" role, you can extract the zipped artifact into the EC2 instance, and then start the app.
 
