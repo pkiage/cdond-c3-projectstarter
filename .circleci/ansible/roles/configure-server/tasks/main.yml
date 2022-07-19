@@ -27,7 +27,7 @@
     production: yes
     state: present
 
-# Install n
+# Install n for node version management
 - name: "install n"
   become: true
   npm:
