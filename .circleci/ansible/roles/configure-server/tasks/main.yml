@@ -25,4 +25,12 @@
     name: pm2
     global: yes
     production: yes
-    state: latest
+    state: present
+
+# Install n
+- name: "install n"
+  become: true
+  npm:
+    name: n
+    global: yes
+    production: yes

@@ -26,6 +26,13 @@
     production: yes
     state: present
 
+- name: "install n"
+  become: true
+  npm:
+    name: n
+    global: yes
+    production: yes
+
 # Use ansible to copy the files
 # In the "deploy" role, you can extract the zipped artifact into the EC2 instance, and then start the app.
 
