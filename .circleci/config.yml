@@ -566,6 +566,8 @@ jobs:
           command: |
             apk add --update --no-cache tar gzip nodejs npm aws-cli curl tree
             # tar makes artifacts (compressed) that improves file transfer performance
+      - restore_cache:
+          keys: [backend-build]
       # Run migrations
       # Save evidence (in migrations_dump.txt) of any new migrations run
       - run:
