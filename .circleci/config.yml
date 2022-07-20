@@ -565,7 +565,7 @@ jobs:
           name: "Install dependencies"
           command: |
             # tar makes artifacts (compressed) that improves file transfer performance
-            sudo apt install -y tar gzip curl tree
+            sudo apt install -y tar gzip curl
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip -qq awscliv2.zip
             sudo ./aws/install
@@ -577,13 +577,7 @@ jobs:
           name: "Run migrations"
           command: |
             cd backend
-            npm install
-            npm audit fix --audit-level=critical --force
-            npm run migrations > migrations_dump.txt
-            echo "Show files and directories in backend (tree)"
-            tree -CL 2
-            echo "Show files and directories in backend (ls)"
-            ls -a
+            npm run migrations >> migrations_dump.txt
             echo "Show migrations_dump.txt"
             cat migrations_dump.txt
       # Send migration status to 3rd party key-value store
