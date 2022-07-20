@@ -627,9 +627,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      # Attach workspace
-      - attach_workspace:
-          at: ~/
       - run:
           name: "Install dependencies"
           command: |
@@ -650,6 +647,8 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+      - restore_cache:
+          keys: [frontend-build]
       # Bake the backend url into the frontend
       # Copy the files into new S3 bucket
       - run:
