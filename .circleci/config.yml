@@ -696,6 +696,8 @@ jobs:
             apk add --update --no-cache openssh rsync
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-build]
       # Install and build backend
 
       # Zip the backend directory in home directory
