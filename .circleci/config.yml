@@ -571,6 +571,8 @@ jobs:
             sudo ./aws/install
       - restore_cache:
           keys: [backend-build]
+      - attach_workspace:
+          at: ~/
       # Run migrations
       # Save evidence (in migrations_dump.txt) of any new migrations run
       - run:
