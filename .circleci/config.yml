@@ -312,7 +312,7 @@ jobs:
   ### Connection using port 5432 on host endpoint?
   #### If unable to connect to remote host
   #### If name or service not known then endpoint issue
-  ## TEST by connecting to the database using SQL Workbench.
+  ## TEST by connecting to the database using SQL Workbench (or DBeaver)
   ### Endpoint (Hostname, JDBC URL), Port, & Initial database name (Additional Configuration>Initial Database name) correctly captured?
   ### Username correctly captured? (During Credential Settings>Master username)
   ### Password correctly captured? (Credential Settings>Master password))
@@ -456,14 +456,12 @@ jobs:
             ii) correct CircleCi workflow id referencing,
             iii) correct values in project/.circleci/files/backend.yml (AMI ID, KeyPair name) applicable to AWS account/region"
 
-  #
-
   # B.1.b Configure Infrastructure (1.b)
   # Set up EC2 instance to run as backend
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
@@ -559,7 +557,7 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
@@ -623,7 +621,7 @@ jobs:
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
@@ -679,7 +677,7 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
@@ -750,7 +748,7 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
@@ -1025,7 +1023,7 @@ workflows:
           # SCREENSHOT10
           filters:
             branches:
-              only: [master]
+              only: [master, features-implementAssessorFeedback]
       # # B.1.b Configure Infrastructure (1.b)
       - configure-infrastructure:
           requires: [deploy-infrastructure]
