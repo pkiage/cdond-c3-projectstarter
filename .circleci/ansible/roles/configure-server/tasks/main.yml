@@ -25,4 +25,17 @@
     name: pm2
     global: yes
     production: yes
-    state: latest
+    state: present
+
+# Install n for node version management
+- name: "install n"
+  become: true
+  npm:
+    name: n
+    global: yes
+    production: yes
+
+# install/specify project recommended NodeJS version
+- name: "specify nodejs 13.8.0"
+  become: true
+  shell: n 13.8.0

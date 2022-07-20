@@ -312,7 +312,7 @@ jobs:
   ### Connection using port 5432 on host endpoint?
   #### If unable to connect to remote host
   #### If name or service not known then endpoint issue
-  ## TEST by connecting to the database using SQL Workbench.
+  ## TEST by connecting to the database using SQL Workbench (or DBeaver)
   ### Endpoint (Hostname, JDBC URL), Port, & Initial database name (Additional Configuration>Initial Database name) correctly captured?
   ### Username correctly captured? (During Credential Settings>Master username)
   ### Password correctly captured? (Credential Settings>Master password))
@@ -437,7 +437,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -456,14 +456,12 @@ jobs:
             ii) correct CircleCi workflow id referencing,
             iii) correct values in project/.circleci/files/backend.yml (AMI ID, KeyPair name) applicable to AWS account/region"
 
-  #
-
   # B.1.b Configure Infrastructure (1.b)
   # Set up EC2 instance to run as backend
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
@@ -536,18 +534,6 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
             echo "Environment Variable Secret Key:"
             echo "${TYPEORM_PORT}"
-
-      # Alerts
-      # Add a section to your back-end configuration job to install the node_exporter for Prometheus monitoring.
-      # This should be done using Ansible.
-
-      - run:
-          name: "Setup Backend Monitoring with Prometheus"
-          command: |
-            cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt configure-prometheus-node-exporter.yml
-
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Custom failure reason message
@@ -571,27 +557,29 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      - image: python:3.10-alpine3.16
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
       - run:
           name: "Install dependencies"
           command: |
-            apk add --update --no-cache tar gzip nodejs npm aws-cli curl tree
             # tar makes artifacts (compressed) that improves file transfer performance
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
+      - restore_cache:
+          keys: [backend-build]
+      - attach_workspace:
+          at: ~/
       # Run migrations
       # Save evidence (in migrations_dump.txt) of any new migrations run
       - run:
           name: "Run migrations"
           command: |
             cd backend
-            npm install
             npm run migrations > migrations_dump.txt
-            echo "Show files and directories in backend (tree)"
-            tree -CL 2
-            echo "Show files and directories in backend (ls)"
-            ls -a
             echo "Show migrations_dump.txt"
             cat migrations_dump.txt
       # Send migration status to 3rd party key-value store
@@ -610,12 +598,12 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl --insecure https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               echo "PASS: Go to this URL to check migration status"
               echo "https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}"
               # return 0
             else
-              curl https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
+              curl --insecure https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
               echo "FAIL: Go to this URL to check migration status"
               echo "https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}"
               # return 1
@@ -635,33 +623,33 @@ jobs:
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
-      # Attach workspace
-      - attach_workspace:
-          at: ~/
       - run:
           name: "Install dependencies"
           command: |
             # Python, Ansible, Node, NPM, and AWS CLI.
             # Prefer to do these installations in multiple steps
-            apk add --update --no-cache tar gzip curl ansible nodejs npm aws-cli
+            apk add --update --no-cache tar gzip nodejs npm aws-cli
             # tar makes artifacts (compressed) that improves file transfer performance
+      - restore_cache:
+          keys: [frontend-build]
       # Done before building front-end
       # Because API_URL will be baked into front-end code
       - run:
           name: "Get backend url"
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
-            --filter "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query "Reservations[*].Instances[*].[PublicIpAddress]" \
+            --filter "Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+
       # Bake the backend url into the frontend
       # Copy the files into new S3 bucket
       - run:
@@ -691,7 +679,7 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
@@ -699,9 +687,6 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "8d:61:ff:ad:be:1e:e5:4d:fa:01:62:cf:2b:19:dc:15" #REPLACE_WITH_APPLICABLE
-      # attach workspace
-      - attach_workspace:
-          at: ~/
       - run:
           name: "Install dependencies"
           command: |
@@ -709,7 +694,10 @@ jobs:
             # Install any necessary dependencies, such as tar, gzip, ansible, nodejs, and npm
             apk add --update --no-cache tar gzip curl ansible nodejs npm aws-cli git
             apk add --update --no-cache openssh rsync
-
+      - restore_cache:
+          keys: [backend-build]
+      - attach_workspace:
+          at: ~/
       # Install and build backend
 
       # Zip the backend directory in home directory
@@ -736,6 +724,9 @@ jobs:
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
+            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+            cp ~/project/backend/.env .circleci/ansible/roles/deploy/files/backend.env
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
@@ -762,21 +753,17 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image
-      - image: python:3.10-alpine3.16
+      - image: python:3.7-alpine3.16
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: "Install dependencies"
           command: |
             # your code here
-            # Install dependencies like curl, nodejs, npm, or awscli.
             # no-cache to keep container small
-            apk add --update --no-cache curl tar gzip nodejs npm aws-cli 
+            apk add --update --no-cache curl  aws-cli 
             pip install awscli
-            apk add --update --no-cache openssh rsync
       - run:
           name: "Backend smoke test: Hit backend API status endpoint"
           command: |
@@ -896,20 +883,20 @@ jobs:
   cloudfront-update:
     docker:
       # Docker image here that supports AWS CLI
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
       - run:
           name: "Install dependencies"
           command: |
-            yum install -y tar gzip tree
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
       - run:
           name: "Update cloudfront distribution"
           command: |
-
-            ls -a
-            tree -CL 2
 
             echo "Blue to Green"
             # Stack name defined in shell-commands/setup-cloudfront-primer.sh

@@ -26,6 +26,19 @@
     production: yes
     state: present
 
+# Install n for node version management
+- name: "install n"
+  become: true
+  npm:
+    name: n
+    global: yes
+    production: yes
+
+# install/specify project recommended NodeJS version
+- name: "specify nodejs 13.8.0"
+  become: true
+  shell: n 13.8.0
+
 # Use ansible to copy the files
 # In the "deploy" role, you can extract the zipped artifact into the EC2 instance, and then start the app.
 
@@ -40,12 +53,11 @@
 - name: "extract the zipped artifact into the EC2 instance"
   become: true
   unarchive:
-    src: ~/project/artifact.tar.gz
-    dest: /home/ubuntu
+    src: files/artifact.tar.gz
+    dest: .
 
 - name: "start app"
   become: true
   shell: |
-    npm install  
-    pm2 stop default  
-    sudo pm2 start npm -- start
+    pm2 delete all
+    pm2 start npm -- start
