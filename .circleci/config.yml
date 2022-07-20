@@ -638,6 +638,8 @@ jobs:
             # Prefer to do these installations in multiple steps
             apk add --update --no-cache tar gzip nodejs npm aws-cli
             # tar makes artifacts (compressed) that improves file transfer performance
+      - restore_cache:
+          keys: [frontend-build]
       # Done before building front-end
       # Because API_URL will be baked into front-end code
       - run:
@@ -651,8 +653,7 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
-      - restore_cache:
-          keys: [frontend-build]
+
       # Bake the backend url into the frontend
       # Copy the files into new S3 bucket
       - run:
