@@ -887,13 +887,10 @@ jobs:
       - run:
           name: "Install dependencies"
           command: |
-            yum install -y tar gzip tree
+            yum install -y tar gzip npm nodejs
       - run:
           name: "Update cloudfront distribution"
           command: |
-
-            ls -a
-            tree -CL 2
 
             echo "Blue to Green"
             # Stack name defined in shell-commands/setup-cloudfront-primer.sh
