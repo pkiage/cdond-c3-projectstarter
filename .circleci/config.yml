@@ -687,9 +687,6 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "8d:61:ff:ad:be:1e:e5:4d:fa:01:62:cf:2b:19:dc:15" #REPLACE_WITH_APPLICABLE
-      # attach workspace
-      - attach_workspace:
-          at: ~/
       - run:
           name: "Install dependencies"
           command: |
@@ -697,7 +694,8 @@ jobs:
             # Install any necessary dependencies, such as tar, gzip, ansible, nodejs, and npm
             apk add --update --no-cache tar gzip curl ansible nodejs npm aws-cli git
             apk add --update --no-cache openssh rsync
-
+      - attach_workspace:
+          at: ~/
       # Install and build backend
 
       # Zip the backend directory in home directory
