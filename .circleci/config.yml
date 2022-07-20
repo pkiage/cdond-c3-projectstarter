@@ -557,15 +557,18 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      - image: python:3.7-alpine3.16
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
       - run:
           name: "Install dependencies"
           command: |
-            apk add --update --no-cache tar gzip nodejs npm aws-cli curl tree
             # tar makes artifacts (compressed) that improves file transfer performance
+            sudo apt install -y tar gzip curl tree
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
       - restore_cache:
           keys: [backend-build]
       # Run migrations
@@ -599,12 +602,12 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl --insecure https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               echo "PASS: Go to this URL to check migration status"
               echo "https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}"
               # return 0
             else
-              curl https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
+              curl --insecure https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 'FAILED MIGRATION'
               echo "FAIL: Go to this URL to check migration status"
               echo "https://kvdb.io/6N6kQx9St2Af9HjHrcENfo/migration_${CIRCLE_WORKFLOW_ID:0:7}"
               # return 1
