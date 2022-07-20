@@ -575,7 +575,7 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit fix --force
+            npm audit fix --audit-level=critical --force
             npm run migrations > migrations_dump.txt
             echo "Show files and directories in backend (tree)"
             tree -CL 2
