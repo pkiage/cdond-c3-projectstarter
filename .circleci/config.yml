@@ -694,10 +694,10 @@ jobs:
             # Install any necessary dependencies, such as tar, gzip, ansible, nodejs, and npm
             apk add --update --no-cache tar gzip curl ansible nodejs npm aws-cli git
             apk add --update --no-cache openssh rsync
-      - attach_workspace:
-          at: ~/
       - restore_cache:
           keys: [backend-build]
+      - attach_workspace:
+          at: ~/
       # Install and build backend
 
       # Zip the backend directory in home directory
