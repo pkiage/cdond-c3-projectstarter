@@ -1024,7 +1024,7 @@ workflows:
           # SCREENSHOT10
           filters:
             branches:
-              only: [master, features-implementAssessorFeedback]
+              only: [master]
       # # B.1.b Configure Infrastructure (1.b)
       - configure-infrastructure:
           requires: [deploy-infrastructure]
