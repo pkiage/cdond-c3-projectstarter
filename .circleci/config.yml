@@ -577,7 +577,7 @@ jobs:
           name: "Run migrations"
           command: |
             cd backend
-            npm run migrations >> migrations_dump.txt
+            npm run migrations > migrations_dump.txt
             echo "Show migrations_dump.txt"
             cat migrations_dump.txt
       # Send migration status to 3rd party key-value store
@@ -754,17 +754,13 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: "Install dependencies"
           command: |
             # your code here
-            # Install dependencies like curl, nodejs, npm, or awscli.
             # no-cache to keep container small
-            apk add --update --no-cache curl tar gzip nodejs npm aws-cli 
+            apk add --update --no-cache curl  aws-cli 
             pip install awscli
-            apk add --update --no-cache openssh rsync
       - run:
           name: "Backend smoke test: Hit backend API status endpoint"
           command: |
